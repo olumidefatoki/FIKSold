@@ -1,0 +1,30 @@
+<?php
+
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+        $host="localhost";
+	 $pass="dfat#2000";
+	 $userName="confada2";
+	 
+	 $connection=null;
+	 $connection=mysql_connect($host,$userName,$pass);
+	if(!$connection)
+        echo 'Failed to obtain a succesful connection to the localHost';
+	mysql_select_db('fadama',$connection)or die(mysql_error());
+        
+        $no=20;
+         while ($no<50){
+          $count=1;
+        while ($count<4) {
+    
+     //$sql="insert into farmers values('','1','34','720','6','6','nam','nam','single','Male','1','qwe','08060099476','nokia','1',now())";
+       $sql="insert into farmercrops values('','$no','$count')";
+       mysql_query($sql)or die(mysql_error());
+       $count++;
+        }
+        $no++;
+         }
+?>

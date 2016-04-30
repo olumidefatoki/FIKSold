@@ -1,0 +1,70 @@
+
+	
+	/* Adjusting the margins, paddings and no list styles */
+	.navigation  {
+		margin:0; 
+		padding:0; 
+		list-style:none;
+	}	
+	
+	/* Little tricking with positions */
+	.navigation  li {
+		float:left;			/* Show list items inline */		
+		position:relative; 
+	}
+		
+	/* Playing with Main Categories */
+	.navigation  li a {
+		
+		color:darkgreen;
+		display:block;  	/* Making sure a element covers whole li area */
+		padding:8px 18px 8px 10px; 
+		text-decoration:none; /* No underline */
+		
+		text-align:center; 
+		text-transform:uppercase;
+	}
+
+	.navigation  li a:hover {
+		color: #FFF;
+						background: #a4c444; /* Old browsers */
+						background: -moz-linear-gradient(top,  #d9f88b 7%, #a4c444 53%, #6c7f2c 100%); /* FF3.6+ */
+						background: -webkit-gradient(linear, left top, left bottom, color-stop(7%,#d9f88b), color-stop(53%,#a4c444), 				                        color-stop(100%,#6c7f2c)); /* Chrome,Safari4+ */
+						background: -webkit-linear-gradient(top,  #d9f88b 7%,#a4c444 53%,#6c7f2c 100%); /* Chrome10+,Safari5.1+ */
+						background: -o-linear-gradient(top,  #d9f88b 7%,#a4c444 53%,#6c7f2c 100%); /* Opera 11.10+ */
+						background: -ms-linear-gradient(top,  #d9f88b 7%,#a4c444 53%,#6c7f2c 100%); /* IE10+ */
+						background: linear-gradient(to bottom,  #d9f88b 7%,#a4c444 53%,#6c7f2c 100%); /* W3C */
+		
+	}
+		
+	/* Sub Cat Menu stuff*/
+	.navigation  ul {
+		position:absolute; 
+		left:0; 
+		display:none; /* Hide it by default */
+		margin:0 0 0 -1px; 
+		padding:0; 
+		list-style:none;
+		border-bottom:3px solid darkgreen;
+	}
+		
+	.navigation  ul li {
+		width: 100%;
+		float:left; 
+		border-top:none;
+	}
+		
+	/* Sub Cat menu link properties */
+	.navigation  ul a {
+		display:block; /* Making sure a element covers whole li area */
+		background:#E2E2E2; 
+		padding:8px 7px 13px 7px; 
+		color:darkgreen;
+		text-decoration:none;	
+		border-top:none;
+		border-bottom:1px dashed darkgreen;
+	}
+		
+	.navigation  ul a:hover {
+		color:#FFF;
+	}

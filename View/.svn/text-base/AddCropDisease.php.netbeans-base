@@ -1,0 +1,171 @@
+<?php
+
+include('../Controller/entity.php');
+//session_start();
+if(isset($_GET['action']) && isset( $_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['menuTableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+$cropID=$_SESSION['recID'];
+$cropList=entity::fetchRecord('crops',$cropID);
+$cropName=mysql_result($cropList,0,'Name');
+}
+if(isset($_GET['id']) && isset($_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$recID=$_GET['id'];
+$result= entity::fetchRecord($entityName,$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$corpName=  mysql_result($result, 0, 1);
+$fertilizer=  mysql_result($result, 0, 2);
+}
+if(isset($_GET['action']) && isset($_GET['id'])&& isset($_SESSION['username']))
+{
+	
+$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$recID=$_GET['id'];
+$menuName=$_SESSION['menuName'];
+$entityName=$_SESSION['menuTableName'];
+$result= entity::fetchRecord('crops',$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$fetilizername=  mysql_result($result, 0, 1);
+$description=  mysql_result($result, 0, 2);
+
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+}
+
+else if(isset($_GET['action']) && isset($_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$menuName=$_SESSION['menuName'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['menuTableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+}
+else{
+	header('location:../index.php');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+       <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>">
+        <li>
+        <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+          <?php   echo $name;  ?>
+        </li>
+        </a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+      <div id="addRecord">
+      Add Crop Disease
+      </div>
+      <?php
+      if($action=='success')
+{
+	?>
+      <div id="Success">Record was Successfully </div>
+      <?php
+}
+?>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="100%" cellpadding="5" cellspacing="1">
+        
+          <tr bgcolor="#96CA1D">
+            <td width="90"> Crop Name</td>
+            <td width="351"><?php  echo $cropName;?>
+              <input type="hidden" name="cropID" id="cropID" value="<?php echo $cropID; ?>" /></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Disease Name</td>
+            <td><label for="disease">
+              <select name="disease" id="disease">
+                <?php  
+			$cropList=entity::fetchEntityList('diseases');
+			$cropNum=mysql_num_rows($cropList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $fertid=  mysql_result($cropList, $index, 'ID');
+        		$fertName=  mysql_result($cropList, $index, 1);
+            
+			?>
+                <option value="<?php echo $fertid; ?>"> <?php echo $fertName; ?></option>
+                <?php  
+			}
+			?>
+              </select>
+            </label></td>
+          </tr>
+         
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a></li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+<div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

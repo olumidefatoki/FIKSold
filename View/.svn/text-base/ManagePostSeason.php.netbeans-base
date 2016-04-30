@@ -1,0 +1,210 @@
+<?php
+
+include('../Controller/entity.php');
+if(isset($_GET['action']) && isset($_GET['id'])&& isset($_SESSION['username']))
+{
+	
+$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$recID=$_GET['id'];
+$menuName=$_SESSION['menuName'];
+$entityName=$_SESSION['menuTableName'];
+$result= entity::fetchRecord($entityName,$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$fetilizername=  mysql_result($result, 0, 1);
+$description=  mysql_result($result, 0, 2);
+
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+}
+
+else if(isset($_GET['action']) && isset($_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$menuName=$_SESSION['menuName'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['menuTableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+}
+else{
+	header('location:../index.php');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>"> <li> 
+	  <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+	  <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+       <div id="addRecord">
+        <?php  if($action=='add'){
+		echo 'Add New '.$menuName;
+		}
+		 else if($action=='update'){
+			  echo 'Update  '.$menuName.'  '.$fetilizername;
+			  } ?>
+              Details
+        </div>
+      <div style="color:#FFF;">
+      Please fill all fields
+      </div>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="100%" cellpadding="5" cellspacing="1">
+          
+          <tr id="entityRowEven">
+            <td width="207">Crop </td>
+            <td width="434"><select name="cropID" id="cropID">
+              <?php  
+			$cropList=entity::fetchEntityList('crops');
+			$cropNum=mysql_num_rows($cropList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $fertid=  mysql_result($cropList, $index, 'ID');
+        		$fertName=  mysql_result($cropList, $index, 1);
+            
+			?>
+              <option value="<?php echo $fertid; ?>"> <?php echo $fertName; ?></option>
+              <?php  
+			}
+			?>
+              </select></td>
+          </tr>
+         <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td> Language</td>
+            <td><label for="fName"></label>
+              <select name="langID" id="langID">
+                <?php  
+			$cropList=entity::fetchEntityList('languages');
+			$cropNum=mysql_num_rows($cropList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $fertid=  mysql_result($cropList, $index, 'ID');
+        		$fertName=  mysql_result($cropList, $index, 1);
+            
+			?>
+                <option value="<?php echo $fertid; ?>"> <?php echo $fertName; ?></option>
+                <?php  
+			}
+			?>
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="207">Access Channel</td>
+            <td width="434"><label for="fName"></label>
+              <select name="accessChannel" id="accessChannel">
+                <option value="Web">web</option>
+                <option value="Mobile">mobile</option>
+                
+              </select></td>
+          </tr>
+          <tr id="entityRowEven">
+            <td>Processing</td>
+            <td><label for="gender"></label>
+              <textarea name="processing" cols="50" rows="3" id="processing"><?php if($action=='update'){echo $farmSize;} ?>
+              </textarea></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Bulking &amp; Delivery</td>
+            <td>            <span >
+              <textarea name="delivery" cols="50" rows="3" id="delivery"><?php if($action=='update'){echo $farmSize;} ?>
+              </textarea>
+            </span></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Storage</td>
+            <td><textarea name="storage" cols="50" rows="3" id="storage" $description="$description"><?php if($action=='update'){echo $address;} ?>
+            </textarea></td>
+          </tr>
+         <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td>Farm Business Planing</td>
+            <td><label for="fName"></label>
+              <textarea name="farmBus" cols="50" rows="3" id="farmBus"><?php if($action=='update'){echo $phoneNo;} ?>
+              </textarea></td>
+          </tr>
+          <tr id="entityRowEven">
+            <td>Farmer Financing</td>
+            <td><textarea name="finance" cols="50" rows="3" id="finance" $description="$description"><?php if($action=='update'){echo $address;} ?>
+            </textarea></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td>Raw Material Specification</td>
+            <td><label for="fName"></label>
+              <textarea name="rawMaterial" cols="50" rows="3" id="rawMaterial"><?php if($action=='update'){echo $phoneNo;} ?>
+              </textarea></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Extra Info</td>
+            <td><textarea name="extraInfo" cols="50" id="extraInfo" $description="$description"><?php if($action=='update'){echo $address;} ?>
+            </textarea></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowEven">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a> </li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  <?php
+  mysql_close();
+  ?>
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

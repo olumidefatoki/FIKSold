@@ -1,0 +1,881 @@
+<?php
+
+include('entity.php');
+include('utils.php');
+include('SanitizeData.php');
+if (isset($_GET['menuTableName'])&&isset($_GET['menuName'])) {
+	
+	unset($_SESSION['query']);
+        unset($_SESSION['genricQuery']);
+    $_SESSION['menuName']=  $_GET['menuName'];
+    $_SESSION['menuTableName']=  $_GET['menuTableName'];    
+    $menuTableName=$_GET['menuTableName'];
+    if ($menuTableName=='lifecycle' ) {
+        header("Location:../View/CropLifeCycle.php");
+    }
+    else if ($menuTableName=='broadcast') {
+        header("Location:../View/ViewBroadcast.php"); 
+    }
+    else if($menuTableName=='farmers'){
+        header("Location:../View/ViewFarmers.php");
+    }
+     else if($menuTableName=='fca'){
+        header("Location:../View/ViewFca.php");
+    }
+     else if($menuTableName=='fug'){
+        header("Location:../View/ViewFug.php");
+    }
+    else
+    {        
+    header("Location:../View/ViewList.php");
+    }
+}
+if (isset($_GET['ViewSeasonRec'])) 
+    {
+        $ViewRecord=$_GET['ViewSeasonRec'];
+        $tableName=$_SESSION['menuTableName'];
+         if ($tableName=='in_season') 
+            { 
+        header("Location:../View/ViewInSeasonRec.php?ViewRecord=$ViewRecord");
+            }
+            if ($tableName=='pre_season') 
+            { 
+        header("Location:../View/ViewPreSeasonRec.php?ViewRecord=$ViewRecord");
+            }
+            if ($tableName=='post_season') 
+            { 
+        header("Location:../View/ViewPostSeasonRec.php?ViewRecord=$ViewRecord");
+            }
+    }
+if (isset($_GET['ViewRecord'])) 
+    {
+        $ViewRecord=$_GET['ViewRecord'];
+        $tableName=$_SESSION['menuTableName'];
+         if ($tableName=='farmers') 
+            { 
+        header("Location:../View/ViewFarmerRecord.php?ViewRecord=$ViewRecord");
+            }
+            else if ($tableName=='broadcast') {
+              header("Location:../View/MonitorBroadcast.php?ViewRecord=$ViewRecord");     
+            }
+            else if ($tableName=='farmergroups') {
+             header("Location:../View/ViewFarmerGroupRecord.php?ViewRecord=$ViewRecord");        
+            }
+             else if ($tableName=='markets') {
+             header("Location:../View/ViewMarket.php?ViewRecord=$ViewRecord");        
+            }
+             else if ($tableName=='fca') {
+             header("Location:../View/ViewFcaRecord.php?ViewRecord=$ViewRecord");        
+            }
+            else if ($tableName=='fug') {
+             header("Location:../View/ViewFugRecord.php?ViewRecord=$ViewRecord");        
+            }
+            else{
+        header("Location:../View/ViewRecord.php?ViewRecord=$ViewRecord");  
+            }
+    }
+    if (isset($_GET['broadcastId'])) 
+    {
+     
+     $broadcastID= $_GET['broadcastId'];
+     $result=entity::fetchtotalFarmer($broadcastID);
+    echo  mysql_result($result,0,0);
+    
+    }
+    if (isset($_GET['loadFarmer'])) 
+    {     
+     $id= $_GET['loadFarmer'];
+     $result=entity::fetchloadedFarmer($id);
+    echo  mysql_result($result,0,0);    
+    }
+    if (isset($_GET['broadcastCropID'])&& isset($_GET['msgTitle']) && isset($_GET['season'])) 
+    {     
+        $cropID= $_GET['broadcastCropID'];
+        $msgTitle= $_GET['msgTitle'];
+        $season= $_GET['season'];
+        
+       // echo  $cropID. $msgTitle. $season;
+        $result=entity::fetchMessage($msgTitle,$season,$cropID);
+        $rows=  mysql_num_rows($result);
+        if ($rows>0) {
+            $msg=  mysql_result($result,0,0);
+            $_SESSION['msg']=$msg;
+               $list=splitContent($msg);
+                foreach ($list as $value) {
+                    echo $value;
+                }
+            }
+        else{
+            echo "No Sms Message";
+            }
+
+    }
+    if (isset($_GET['seasonType'])) 
+    {
+        
+     
+     $seasonType= trim($_GET['seasonType']);
+     $result=entity::fetchEntityList($seasonType);
+     $col= mysql_num_fields($result);
+      for ($index = 4; $index < $col; $index++) {
+        $fieldname=mysql_fieldname($result, $index);
+        $id=$fieldname;
+        $data=$fieldname;
+        echo '<option value="'.$id.'">'.$data.'</option>';
+    }
+    
+    }
+    
+if (isset($_GET['add'])) 
+    {
+        $action='add';
+        $tableName=  $_SESSION['menuTableName'];
+//        echo $tableName;
+//        exit();
+        if ($tableName=='fertilizers') 
+            {  
+            header("Location:../View/ManageFertilizer.php?action=$action");
+            }
+        else if($tableName=='crops')
+            {
+           header("Location:../View/ManageCrop.php?action=$action");
+            }
+            else if($tableName=='diseases')
+            {
+           header("Location:../View/ManageDisease.php?action=$action");
+            }
+            else if($tableName=='farms')
+            {
+           header("Location:../View/ManageFarm.php?action=$action");
+            }
+            else if($tableName=='farmers')
+            {
+           header("Location:../View/ManageFarmer.php?action=$action");
+            }
+            else if($tableName=='pests')
+            {
+           header("Location:../View/ManagePest.php?action=$action");
+            }
+            else if($tableName=='farmergroups')
+            {
+           header("Location:../View/ManageFarmerGroup.php?action=$action");
+            }
+            else if($tableName=='harvests')
+            {
+           header("Location:../View/ManageHarvest.php?action=$action");
+            }
+            else if($tableName=='markets')
+            {
+           header("Location:../View/ManageMarket.php?action=$action");
+            }
+            else if($tableName=='traders')
+            {
+           header("Location:../View/ManageTrader.php?action=$action");
+            }
+            else if($tableName=='croppestmappings')
+            {
+           
+           header("Location:../View/AddCropPest.php?action=$action");
+            }
+            else if($tableName=='cropfertilizermappings')
+            {
+           header("Location:../View/AddCropFertilizer.php?action=$action");
+            }
+            else if($tableName=='cropdiseasemappings')
+            {
+           header("Location:../View/AddCropDisease.php?action=$action");
+            }
+             else if($tableName=='pesticides')
+            {
+           header("Location:../View/ManagePesticide.php?action=$action");
+            }
+             else if($tableName=='cropherbicides')
+            {
+               
+           header("Location:../View/AddCropHerbicides.php?action=$action");
+            }
+             else if($tableName=='cropvarietys')
+            {
+           header("Location:../View/AddCropVariety.php?action=$action");
+            }
+             else if($tableName=='pestpesticidemappings')
+            {
+           header("Location:../View/AddPestPesticides.php?action=$action");
+            }
+            else if($tableName=='tradercropsolds')
+            {
+           header("Location:../View/AddTraderCrop.php?action=$action");
+            }
+            else if($tableName=='pestpesticidemappings')
+            {
+           header("Location:../View/AddPestPesticides.php?action=$action");
+            }
+            else if($tableName=='marketcrops')
+            {
+           header("Location:../View/AddMarketCrop.php?action=$action");
+            } else if($tableName=='herbicides')
+            {
+           header("Location:../View/ManageHerbicide.php?action=$action");
+            }
+            else if ($tableName=='in_season') 
+            { 
+            header("Location:../View/ManageInSeason.php?action=$action");
+            }
+            else if ($tableName=='pre_season') 
+            { 
+            header("Location:../View/ManagePreSeason.php?action=$action");
+            }
+            else if ($tableName=='post_season') 
+            { 
+            header("Location:../View/ManagePostSeason.php?action=$action");
+            }
+            else if ($tableName=='broadcast') 
+            { 
+            header("Location:../View/Broadcast.php?action=$action");
+            }
+            else if ($tableName=='fca') 
+            { 
+            header("Location:../View/ManageFca.php?action=$action");
+            }
+            else if ($tableName=='fug') 
+            { 
+            header("Location:../View/ManageFug.php?action=$action");
+            }
+   }
+if (isset($_GET['update'])) 
+    {
+        $action='update';
+      $tableName=  $_SESSION['menuTableName'];  
+     
+        if ($tableName=='fertilizers') 
+            {
+                $id=$_GET['redID'];
+                header("Location:../View/ManageFertilizer.php?action=$action&id=$id");
+           }
+        if ($tableName=='crops') 
+            {
+                $id=$_GET['redID'];
+                header("Location:../View/ManageCrop.php?action=$action&id=$id");
+            }
+        if ($tableName=='diseases') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageDisease.php?action=$action&id=$id");
+        }
+        if ($tableName=='farms') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageFarm.php?action=$action&id=$id");
+        }
+        if ($tableName=='pests') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManagePest.php?action=$action&tableName=Pest&id=$id");
+        }
+        if ($tableName=='markets') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageMarket.php?action=$action&tableName=Market&id=$id");
+        }
+        if ($tableName=='farmergroups') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageFarmerGroup.php?action=$action&tableName=FarmerGroup&id=$id");
+        }
+        if ($tableName=='farmers') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageFarmer.php?action=$action&tableName=Farmer&id=$id");
+        }
+        if ($tableName=='traders') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageTrader.php?action=$action&tableName=Trader&id=$id");
+        }
+        if ($tableName=='pesticides') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManagePesticide.php?action=$action&tableName=Pesticide&id=$id");
+        }
+        if ($tableName=='herbicides') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageHerbicide.php?action=$action&tableName=Herbicide&id=$id");
+        }
+        if ($tableName=='in_season') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManageInSeason.php?action=$action&tableName=$tableName&id=$id");
+        }
+        if ($tableName=='pre_season') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManagePreSeason.php?action=$action&tableName=$tableName&id=$id");
+        }
+        if ($tableName=='post_season') 
+        {
+            $id=$_GET['redID'];
+            header("Location:../View/ManagePostSeason.php?action=$action&tableName=$tableName&id=$id");
+        }
+   }
+   
+if (isset($_GET['delete'])) 
+    {
+      $action='delete';
+      $tableName=  $_SESSION['menuTableName'];
+      $id=$_GET['redID'];
+      entity::deleteRecord($tableName,$id);
+        header("Location:../View/ViewList.php?actionSuccessfull&tableName=$tableName");
+    }
+ if (isset($_POST['add']))
+     {
+         $action='add';
+         $tableName=  $_SESSION['menuTableName'];
+        echo $tableName;
+        
+        if ($tableName=='fca') 
+            {
+            $state=  clean($_POST['state']);
+            $lga=clean($_POST['lga']);
+            $fcaName=clean($_POST['fcaName']);
+            $fcaLeaderName=clean($_POST['fcaLeaderName']);
+            $fcaLeaderPhoneNo=clean($_POST['fcaLeaderPhoneNo']);
+            $id=entity::insertFca($fcaName, $fcaLeaderName,$fcaLeaderPhoneNo,$state,$lga);
+            header("Location:../View/ViewFcaRecord.php?ViewRecord=$id&action=$action");
+            }
+            if ($tableName=='fug') 
+            {
+            
+            $fca=clean($_POST['fca']);
+            $fugName=clean($_POST['fugName']);
+            $fugLeaderName=clean($_POST['fugLeaderName']);
+            $fugLeaderPhoneNo=clean($_POST['fugLeaderPhoneNo']);
+            
+            $id=entity::insertFug($fugName, $fugLeaderName,$fugLeaderPhoneNo,$fca);
+            header("Location:../View/ViewFugRecord.php?ViewRecord=$id&action=$action");
+            }
+        if ($tableName=='fertilizers') 
+            {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=entity::insertFertilizer($name, $description);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+        if ($tableName=='crops') 
+        {
+            $name=trim($_POST['name']);
+            $description=trim($_POST['description']);
+            $cycleMonth=trim($_POST['cycleMonth']);
+            $id=entity::insertCrop($name, $description,$cycleMonth);
+             header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='diseases') 
+            {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=entity::insertDisease($name, $description);
+            
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+        if ($tableName=='farms') 
+        {
+            $name=trim($_POST['name']);
+            $size=trim($_POST['size']);
+            $location=trim($_POST['location']);
+            $lga=trim($_POST['lga']);
+            $id=entity::insertFarm($name,$size,$location,$lga);
+            
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='pests') 
+            {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=entity::insertPest($name, $description);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+        if ($tableName=='markets') 
+        {
+            $name=trim($_POST['name']);
+            $address=trim($_POST['address']);
+            $state=trim($_POST['state']);
+            $lga=trim($_POST['lga']);
+            $marketDay=trim($_POST['marketDay']);
+            $ward=trim($_POST['ward']);
+            $id=entity::insertMarket($name,$address,$state,$lga,$ward,$marketDay);
+            
+            header("Location:../View/ViewMarket.php?ViewRecord=$id&action=$action");
+         }
+         if ($tableName=='farmergroups') 
+            {
+            $name=htmlspecialchars(trim($_POST['name']));
+            $leadName=htmlspecialchars(trim($_POST['leadName']));
+            $phoneNo=htmlspecialchars(trim($_POST['phoneNo']));
+            $state=htmlspecialchars(trim($_POST['state']));
+            $lga=htmlspecialchars(trim($_POST['lga']));
+            $ward=htmlspecialchars(trim($_POST['ward']));
+            $id=entity::insertFarmerGroup($name,$leadName,$phoneNo,$state,$lga,$ward);
+            header("Location:../View/ViewFarmerGroupRecord.php?ViewRecord=$id&action=$action");
+            }
+        if ($tableName=='farmers') 
+            {
+           
+             $state=clean($_POST['state']);
+             $lga=clean($_POST['lga']);
+             $fca=clean($_POST['fca']);
+             $fug=clean($_POST['fug']);
+             $crop1=clean($_POST['crop1']);
+             $crop2=clean($_POST['crop2']);
+             $crop3=clean($_POST['crop3']);
+            $fName=clean($_POST['fName']);
+            $lName=clean($_POST['lName']);
+            $status=clean($_POST['status']);
+            $gender=clean($_POST['gender']);
+            $size=clean($_POST['size']);
+            $address=clean($_POST['address']);
+            $phoneNo=clean($_POST['phoneNo']);            
+            $language=clean($_POST['language']);
+            $fug=clean($_POST['fug']);
+            $phoneType=clean($_POST['phoneType']);
+            $market=clean($_POST['market']);
+            $id=entity::insertFarmer($fName,$lName,$status,$gender,$size,$address,$phoneNo,$language,$phoneType,$market,$fug,$fca,$lga,$state,$crop1,$crop2,$crop3);
+            header("Location:../View/ViewFarmerRecord.php?ViewRecord=$id&action=$action");
+            }
+             if ($tableName=='traders') 
+            {
+            $name=  htmlspecialchars($_POST['name']);
+            $marketID=htmlspecialchars($_POST['marketID']);
+            
+            $id=entity::insertTrader($name, $marketID);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+            if ($tableName=='cropfertilizermappings') 
+            {
+            $crop=  htmlspecialchars($_POST['cropID']);
+            $fertilizer=htmlspecialchars($_POST['fertilizer']);
+            $id=entity::insertCropFertilizer($crop, $fertilizer);
+            header("Location:../View/AddCropFertilizer.php?&action=success");
+            }
+            if ($tableName=='cropdiseasemappings') 
+            {
+            $crop=  htmlspecialchars($_POST['cropID']);
+            $disease=htmlspecialchars($_POST['disease']);
+            $id=entity::insertCropDisease($crop, $disease);
+            header("Location:../View/AddCropDisease.php?&action=success");
+            }
+            if ($tableName=='croppestmappings') 
+            {
+            $crop=  htmlspecialchars($_POST['cropID']);
+            $pest=htmlspecialchars($_POST['pest']);
+            $id=entity::insertCropPest($crop, $pest);
+            header("Location:../View/AddCropPest.php?&action=success");
+            }
+            if ($tableName=='cropvarietys') 
+            {
+            $variety=  htmlspecialchars($_POST['variety']);
+            $original=htmlspecialchars($_POST['original']);
+            $characteristics=  htmlspecialchars($_POST['characteristics']);
+            $yield=htmlspecialchars($_POST['yield']);
+            $cropID=htmlspecialchars($_POST['cropID']);
+            $cropID=entity::insertCropVariety($variety,$original,$characteristics,$yield,$cropID);
+            header("Location:../View/AddCropVariety.php?&action=success");
+            }
+            if ($tableName=='cropherbicides') 
+            {
+            $herbicideID= htmlspecialchars($_POST['herbicideID']);
+            $applicationPeriod=htmlspecialchars($_POST['applicationPeriod']);
+            $qty=  htmlspecialchars($_POST['qty']);
+            $cropID=htmlspecialchars($_POST['cropID']);
+            $ID=entity::insertCropHerbicide($herbicideID,$applicationPeriod,$qty,$cropID);
+            header("Location:../View/AddCropHerbicides.php?&action=success");
+            }
+            if ($tableName=='pesticides') 
+            {
+            $name=htmlspecialchars($_POST['name']);
+            $description=htmlspecialchars($_POST['description']);
+            $id=entity::insertPesticide($name, $description);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+            if ($tableName=='herbicides') 
+            {
+            $name=htmlspecialchars($_POST['name']);
+            $description=htmlspecialchars($_POST['description']);
+            $timing=htmlspecialchars($_POST['timing']);
+            $dosage=htmlspecialchars($_POST['dosage']);
+            $id=entity::insertHerbicide($name, $description,$timing,$dosage);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+            }
+            if ($tableName=='pestpesticidemappings') 
+            {
+            $pestID=htmlspecialchars($_POST['pestID']);
+            $pesticideID=htmlspecialchars($_POST['pesticideID']);
+            $id=entity::insertPestPesticide($pestID, $pesticideID);
+            header("Location:../View/AddPestPesticides.php?action=success");
+            }
+            if ($tableName=='tradercropsolds') 
+            {
+            $traderId=htmlspecialchars($_POST['traderId']);
+            $cropID=htmlspecialchars($_POST['cropID']);
+            $qty=htmlspecialchars($_POST['qty']);
+            $price=htmlspecialchars($_POST['price']);
+           
+            $id=entity::insertTraderCrop($traderId, $cropID,$qty,$price);
+            header("Location:../View/AddTraderCrop.php?action=success");
+            }
+            if ($tableName=='marketcrops') 
+            {
+            $marketID=htmlspecialchars($_POST['marketID']);
+            $cropID=htmlspecialchars($_POST['cropID']);
+            $price=htmlspecialchars($_POST['price']);
+            echo $marketID ."  ".$cropID." ".$price;
+            $id=entity::insertMarketCrop($marketID, $cropID,$price);
+            header("Location:../View/AddMarketCrop.php?action=success");
+            }
+            else if ($tableName=='in_season') 
+            { 
+            $langID=htmlspecialchars(trim($_POST['langID']));
+            $cropVariety=htmlspecialchars(trim($_POST['crop']));
+            $seedRate=htmlspecialchars(trim($_POST['seedRate']));
+            
+            $accessChannel=htmlspecialchars(trim($_POST['accessChannel']));
+            $seedTreatment=htmlspecialchars(trim($_POST['seedTreatment']));
+            $sowingDate=htmlspecialchars(trim($_POST['sowingDate']));
+            $spacing=htmlspecialchars(trim($_POST['spacing']));
+            $fertilizerApp=htmlspecialchars(trim($_POST['fertilizerApp']));
+            $weedControl=htmlspecialchars(trim($_POST['weedControl']));
+            $chemicalControl=htmlspecialchars(trim($_POST['chemicalControl']));
+            $harvesting=htmlspecialchars(trim($_POST['harvesting']));
+            $striga=htmlspecialchars(trim($_POST['striga']));
+            $diseases=htmlspecialchars(trim($_POST['diseases']));
+            $IPM=htmlspecialchars(trim($_POST['IPM']));
+            $extraInfo=htmlspecialchars(trim($_POST['extraInfo']));
+            
+            $id=entity::insertInSeason($langID, $cropVariety,$accessChannel,$seedRate,$seedTreatment,$sowingDate,$spacing,$fertilizerApp,$weedControl,$chemicalControl,$harvesting,$striga,$diseases,$IPM,$extraInfo);
+            header("Location:../View/ViewInSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+     else if ($tableName=='pre_season') 
+            { 
+            $langID=mysql_real_escape_string(htmlspecialchars(trim($_POST['langID'])));
+            $cropID=mysql_real_escape_string(htmlspecialchars(trim($_POST['cropID'])));
+            $site=mysql_real_escape_string(htmlspecialchars(trim($_POST['site'])));            
+            $accessChannel=mysql_real_escape_string(htmlspecialchars(trim($_POST['accessChannel'])));
+            $land=mysql_real_escape_string(htmlspecialchars(trim($_POST['land'])));
+            
+            $ploughing=mysql_real_escape_string(htmlspecialchars(trim($_POST['ploughing'])));
+            $harrowing=mysql_real_escape_string(htmlspecialchars(trim($_POST['harrowing'])));
+            $ridging=mysql_real_escape_string(htmlspecialchars(trim($_POST['ridging']))); 
+            $extraInfo=mysql_real_escape_string(htmlspecialchars(trim($_POST['extraInfo'])));
+            $id=entity::insertPreSeason($langID, $cropID,$accessChannel,$site,$land,$ploughing,$ridging,$harrowing,$extraInfo);
+            
+            header("Location:../View/ViewPreSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+             else if ($tableName=='post_season') 
+            { 
+            $cropID=mysql_real_escape_string(htmlspecialchars(trim($_POST['cropID'])));
+            $langID=mysql_real_escape_string(htmlspecialchars(trim($_POST['langID'])));
+            $accessChannel=mysql_real_escape_string(htmlspecialchars(trim($_POST['accessChannel'])));            
+            $processing=mysql_real_escape_string(htmlspecialchars(trim($_POST['processing'])));
+            $delivery=mysql_real_escape_string(htmlspecialchars(trim($_POST['delivery'])));
+            $storage=mysql_real_escape_string(htmlspecialchars(trim($_POST['storage'])));
+            $farmBus=mysql_real_escape_string(htmlspecialchars(trim($_POST['farmBus'])));            
+            $finance=mysql_real_escape_string(htmlspecialchars(trim($_POST['finance'])));
+            $extraInfo=mysql_real_escape_string(htmlspecialchars(trim($_POST['extraInfo'])));
+            $rawMaterial=mysql_real_escape_string(htmlspecialchars(trim($_POST['rawMaterial'])));
+            $id=entity::insertPostSeason($cropID,$langID,$accessChannel,$processing,$delivery,$storage,$farmBus,$finance,$rawMaterial,$extraInfo);
+             header("Location:../View/ViewPostSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+             
+     }
+if (isset($_POST['update']))
+     {
+        $action='update';
+        
+         
+        $tableName=  $_SESSION['menuTableName'];
+        if ($tableName=='fertilizers') 
+        {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=$_POST['id'];
+            echo $id;
+            entity::updateFertilizer($name, $description,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='crops') 
+        {
+            $name=trim($_POST['name']);
+            $description=trim($_POST['description']);
+            $cycleMonth=trim($_POST['cycleMonth']);
+            $id=$_POST['id'];
+         
+            entity::updateCrop($name, $description,$cycleMonth,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='diseases') 
+        {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=$_POST['id'];
+            entity::updateDisease($name, $description,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='farms') 
+        {
+            $name=trim($_POST['name']);
+            $size=trim($_POST['size']);
+            $location=trim($_POST['location']);
+            $lga=trim($_POST['lga']);
+            $id=$_POST['id'];
+            entity::updateFarm($name,$size,$location,$lga,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='pests') 
+        {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=$_POST['id'];
+            entity::updatePest($name, $description,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='markets') 
+        {
+            $name=trim($_POST['name']);
+            $address=trim($_POST['address']);
+            $state=trim($_POST['state']);
+            $lga=trim($_POST['lga']);
+            $ward=trim($_POST['ward']);
+            $marketDay=trim($_POST['marketDay']);
+            $id=$_POST['id'];
+            entity::updateMarket($name,$address,$state,$lga,$marketDay,$id);
+            header("Location:../View/ViewMarket.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='farmergroups') 
+        {
+            $name=$_POST['name'];
+            $leadName=$_POST['leadName'];
+            $phoneNo=$_POST['phoneNo'];
+            $id=$_POST['id'];
+            entity::updateFarmerGroup($name,$leadName,$phoneNo,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='farmers') 
+        {
+            $fName=trim($_POST['fName']);
+            $lName=trim($_POST['lName']);
+            $age=trim($_POST['age']);
+            $gender=trim($_POST['gender']);
+            $size=trim($_POST['size']);
+            $address=trim($_POST['address']);
+            $phoneNo=trim($_POST['phoneNo']);
+            $state=trim($_POST['state']);
+            $lga=trim($_POST['lga']);
+            $ward=trim($_POST['ward']);
+            $language=trim($_POST['language']);
+            $group=trim($_POST['group']);
+            $id=$_POST['id'];
+            entity::updateFarmer($fName,$lName,$age,$gender,$size,$address,$phoneNo,$state,$lga,$ward,$language,$group,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='traders') 
+        {
+            $name= htmlspecialchars($_POST['name']);
+            $marketID=htmlspecialchars($_POST['marketID']);
+            $id=$_POST['id'];
+          //  echo $id;
+            entity::updateTrader($name, $marketID,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='pesticides') 
+        {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=$_POST['id'];
+           // echo $id."  ".$name."  ".$description;
+            
+            entity::updatePesticide($name, $description,$id);
+           header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+        if ($tableName=='herbicides') 
+        {
+            $name=$_POST['name'];
+            $description=$_POST['description'];
+            $id=$_POST['id'];
+            // echo $id."  ".$name."  ".$description;
+            entity::updateHerbicide($name, $description,$id);
+            header("Location:../View/ViewRecord.php?ViewRecord=$id&action=$action");
+        }
+         if ($tableName=='in_season') 
+            { 
+            $id=$_POST['id'];
+           
+            $langID=htmlspecialchars(trim($_POST['langID']));
+            $cropVariety=htmlspecialchars(trim($_POST['crop']));
+            $seedRate=htmlspecialchars(trim($_POST['seedRate']));
+            
+            $accessChannel=htmlspecialchars(trim($_POST['accessChannel']));
+            $seedTreatment=htmlspecialchars(trim($_POST['seedTreatment']));
+            $sowingDate=htmlspecialchars(trim($_POST['sowingDate']));
+            $spacing=htmlspecialchars(trim($_POST['spacing']));
+            $fertilizerApp=htmlspecialchars(trim($_POST['fertilizerApp']));
+            $weedControl=htmlspecialchars(trim($_POST['weedControl']));
+            $chemicalControl=htmlspecialchars(trim($_POST['chemicalControl']));
+            $harvesting=htmlspecialchars(trim($_POST['harvesting']));
+            $striga=htmlspecialchars(trim($_POST['striga']));
+            $diseases=htmlspecialchars(trim($_POST['diseases']));
+            $IPM=htmlspecialchars(trim($_POST['IPM']));
+            $extraInfo=htmlspecialchars(trim($_POST['extraInfo']));
+            
+            entity::updateInSeason($id,$langID, $cropVariety,$accessChannel,$seedRate,$seedTreatment,$sowingDate,$spacing,$fertilizerApp,$weedControl,$chemicalControl,$harvesting,$striga,$diseases,$IPM,$extraInfo);
+             
+            header("Location:../View/ViewInSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+      if ($tableName=='pre_season') 
+            { 
+            $langID=mysql_real_escape_string(htmlspecialchars(trim($_POST['langID'])));
+            $cropID=mysql_real_escape_string(htmlspecialchars(trim($_POST['cropID'])));
+            $site=mysql_real_escape_string(htmlspecialchars(trim($_POST['site'])));            
+            $accessChannel=mysql_real_escape_string(htmlspecialchars(trim($_POST['accessChannel'])));
+            $land=mysql_real_escape_string(htmlspecialchars(trim($_POST['land'])));
+            
+            $ploughing=mysql_real_escape_string(htmlspecialchars(trim($_POST['ploughing'])));
+            $harrowing=mysql_real_escape_string(htmlspecialchars(trim($_POST['harrowing'])));
+            $ridging=mysql_real_escape_string(htmlspecialchars(trim($_POST['ridging']))); 
+            $extraInfo=mysql_real_escape_string(htmlspecialchars(trim($_POST['extraInfo'])));
+            $id=entity::insertPreSeason($langID, $cropID,$accessChannel,$site,$land,$ploughing,$ridging,$harrowing,$extraInfo);
+            
+            header("Location:../View/ViewPreSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+              if ($tableName=='post_season') 
+            { 
+            $cropID=mysql_real_escape_string(htmlspecialchars(trim($_POST['cropID'])));
+            $langID=mysql_real_escape_string(htmlspecialchars(trim($_POST['langID'])));
+            $accessChannel=mysql_real_escape_string(htmlspecialchars(trim($_POST['accessChannel'])));            
+            $processing=mysql_real_escape_string(htmlspecialchars(trim($_POST['processing'])));
+            $delivery=mysql_real_escape_string(htmlspecialchars(trim($_POST['delivery'])));
+            $storage=mysql_real_escape_string(htmlspecialchars(trim($_POST['storage'])));
+            $farmBus=mysql_real_escape_string(htmlspecialchars(trim($_POST['farmBus'])));            
+            $finance=mysql_real_escape_string(htmlspecialchars(trim($_POST['finance'])));
+            $extraInfo=mysql_real_escape_string(htmlspecialchars(trim($_POST['extraInfo'])));
+            $rawMaterial=mysql_real_escape_string(htmlspecialchars(trim($_POST['rawMaterial'])));
+            $id=entity::insertPostSeason($cropID,$langID,$accessChannel,$processing,$delivery,$storage,$farmBus,$finance,$rawMaterial,$extraInfo);
+             header("Location:../View/ViewPostSeasonRec.php?ViewRecord=$id&action=$action");
+            }
+        
+    }
+    if(isset($_GET['stateId']))
+		{
+                echo '<option >----------------------------All Lga----------------------------</option>';
+		 $id=$_GET['stateId'];
+		 $lgaResult=entity::fetchLGA('lga',$id);
+                
+		 while($row=mysql_fetch_array($lgaResult))
+			{
+			$id=$row['lgaID'];
+			$data=$row['lgaName'];
+			echo '<option value="'.$id.'">'.$data.'</option>';
+			
+			}
+    }
+   if(isset($_GET['lgaid']))
+		{
+		 $id=$_GET['lgaid'];
+		 $lgaResult=entity::fetchWard('wards',$id);
+		 while($row=mysql_fetch_array($lgaResult))
+			{
+			$id=$row['wardID'];
+			$data=$row['wardName'];
+			echo '<option value="'.$id.'">'.$data.'</option>';
+			
+			}
+		}
+    if (isset($_GET['farmerlgaid'])) {
+                  echo '<option >----------------------------All FCA----------------------------</option>';
+                  $lgaid= $_GET['farmerlgaid'];
+                  $result=entity::fetchfarmerFCA( $lgaid);
+                  while($row=mysql_fetch_array($result))
+                    {
+                    $id=$row['ID'];
+                    $data=$row['Name'];
+                    echo '<option value="'.$id.'">'.$data.'</option>';
+
+                    }
+    
+}
+if (isset($_GET['fcaId'])) {
+                    echo '<option >----------------------------All FUG----------------------------</option>';
+                  $lgaid= $_GET['fcaId'];
+                  $result=entity::fetchfarmerfug( $lgaid);
+                  while($row=mysql_fetch_array($result))
+                    {
+                    $id=$row['ID'];
+                    $data=$row['Name'];
+                    echo '<option value="'.$id.'">'.$data.'</option>';
+
+                    }
+    
+}
+if(isset($_POST['cropId']))
+{
+    $cropId=$_POST['cropId'];
+   
+    $varietyResult=entity::fetchCropVariety('cropvarietys',$cropId);
+
+    while($row=mysql_fetch_array($varietyResult))
+        {
+        $id=$row['ID'];
+        $data=$row['Name'];
+        echo '<option value="'.$id.'">'.$data.'</option>';
+
+        }
+}
+function populateStateFarmer($stateId,$startpoint, $limit)
+{
+ $result=entity::getStateFarmer( $stateId,$startpoint, $limit);
+ return $result;
+}
+function populateLgaFarmer($lgaId,$startpoint, $limit)
+{
+ $result=entity::getlgaFarmer( $lgaId,$startpoint, $limit);
+ return $result;
+}
+function populateFcaFarmer($lgaId,$startpoint, $limit)
+{
+ $result=entity::getFcaFarmer( $lgaId,$startpoint, $limit);
+ return $result;
+}
+function populateFUGFarmer($lgaId,$startpoint, $limit)
+{
+ $result=entity::getFugFarmer( $lgaId,$startpoint, $limit);
+ return $result;
+}
+if(isset($_POST['Broadcast']))
+{
+   $errorList=array();
+  $searchCriteria='';
+  $searchValue='';
+   if (isset($_POST['state']) && $_POST['state'] != 0) {
+        $searchValue = clean($_POST['state']);
+         $searchCriteria='stateID';
+    if (isset($_POST['lga']) && $_POST['lga'] != 0) {
+        $searchValue = clean($_POST['lga']);
+         $searchCriteria='lgaID';
+        if (isset($_POST['fca']) && $_POST['fca'] != 0) {
+            $searchValue =clean($_POST['fca']);
+             $searchCriteria='fcaID';
+            if (isset($_POST['fug'])&& $_POST['fug'] != 0) {
+                $searchValue = clean($_POST['fug']);
+                 $searchCriteria='fugID';
+                 } }}}
+                 
+            $season=clean($_POST['season']);
+            $messageTitle=clean($_POST['messageTitle']);            
+            $cropID=clean($_POST['cropID']);
+            $deliveryDate=clean($_POST['deliveryDate']);
+            $msgContent=$_SESSION['msg']; 
+            $deliveryDate=clean(str_replace("/", "-", $deliveryDate).':00');
+           // sanitizeBroadcast($_POST);
+             
+            entity::insertBroadcast($searchCriteria,$searchValue,$season,$cropID,$messageTitle,$msgContent,$deliveryDate);
+            header("Location:../View/ViewBroadcast.php?ViewRecord=$id&action=$action");
+}
+?>

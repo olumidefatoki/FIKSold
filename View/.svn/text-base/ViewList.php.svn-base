@@ -1,0 +1,164 @@
+<?php
+include('../Controller/entity.php');
+include('../Controller/utils.php');
+//session_start();
+if(isset($_POST['search']))
+{
+    $username=$_SESSION['username'];
+    $menuTableName= $_SESSION['menuTableName'];
+    $menuName=$_SESSION['menuName'];
+    $recName=$_POST['recordName'];
+    //fectch a record for a  ID in a  table
+     $page = (int) (!isset($_GET["page"]) ? 1 : $_GET["page"]);
+      $startpoint = ($page * $limit) - $limit;
+    $list=  entity::fetchRec($menuTableName,$recName,$startpoint,$limit);
+	$query=$_SESSION['genricQuery'];
+    //fecth a list of all the menus
+    $menuList=entity::fetchMenu();
+    $menuRow=mysql_num_rows($menuList);
+}
+elseif(isset($_SESSION['menuName']) or isset($_GET['actionSuccessfull']) && isset($_SESSION['username']))
+{
+    $username=$_SESSION['username'];
+    $menuTableName= $_SESSION['menuTableName'];
+    $menuName=$_SESSION['menuName'];
+    //fectch all the record for a table
+   $page = (int) (!isset($_GET["page"]) ? 1 : $_GET["page"]);
+   $startpoint = ($page * $limit) - $limit;
+    if (!isset($_SESSION['genricQuery'])) {
+    $list=  entity::fetchList($menuTableName,$startpoint,$limit);
+	}
+	else{
+         $query=$_SESSION['genricQuery'];
+		 echo  $query;
+		$list= entity::limitCropQuery($menuTableName,$query, $startpoint, $limit);
+	}
+        $query=$_SESSION['genricQuery'];
+    //fecth a list of all the menus
+    $menuList=entity::fetchMenu();
+    $menuRow=mysql_num_rows($menuList);
+    
+   
+        
+        //to make pagination
+        
+}
+else{
+	header('location:../index.php');
+}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?>
+  
+  </div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <div id="navigationHeader"></div>
+    <ul>
+      <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>">
+        <li>
+        <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+          <?php   echo $name;  ?>
+        </li>
+        </a>
+      <?php
+    }
+    ?></ul>
+  </div>
+  <div id="post">
+      <div id="view">
+        <div style="color:#044407; font-size:28px; margin-top:2px ; margin-bottom:10px;"><?php echo $menuName.'s'; ?>
+          <br />
+         <font size="+1" color="#000"> Search</font><br />
+         <form id="form1" name="form1" method="post" action="ViewList.php">
+           <input name="recordName" type="text" id="recordName" size="30" /> 
+          <br />
+           <input type="submit" name="search" id="search" value="Search" />
+          
+         </form>
+         <label for="textfield"></label>
+        
+        </div>
+<table width="100%" cellpadding="3" class="recordTable" >
+        
+          <tr bgcolor="#96C000">
+            <td width="6%" bgcolor="#96C000">S/N</td>
+            <td width="55%"> Name</td>
+            <td width="39%">Action</td>
+          </tr>
+          <?php
+		  $i=0;
+		  if(count($list)>0){
+		  foreach ($list as $entity) {
+    		if($i%2==0)
+		  {
+			  $bg="entityRowOdd";
+		  }
+		  else{
+			  $bg="entityRowEven";
+		  } 
+          $i++;
+		  ?>
+          <tr id="<?php echo $bg; ?>">
+            <td><?php echo $entity->ID; ?></td>
+            <td><?php echo ucwords($entity->name);  ?></td>
+            <td><a href="<?php echo "../Controller/RequestController.php?ViewRecord=$entity->ID" ?>"> View </a></td>
+          </tr>
+          <?php
+		  }
+		  }
+		  else{
+		  ?>
+          <tr bgcolor="#96CA1D">
+            <td colspan="3" align="center">No Record Found</td>
+          </tr>
+          <?php
+		  }
+		  ?>
+        </table>
+        <div id="pagination">
+          <?php
+	echo pagination($query,$limit,$page,"ViewList.php?");
+?>
+</div>
+      </div>
+      <div id="subMenu">
+        <ul>
+        <li>
+           <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a>
+         </li>
+        </ul>
+        </table>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+<div id="footer">
+  <p>Copyright &copy; 2012 cellulant life is mobile</p>
+</div>
+</div>
+</body>
+</html>

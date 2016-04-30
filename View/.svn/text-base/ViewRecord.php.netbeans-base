@@ -1,0 +1,192 @@
+<?php
+include('../Controller/entity.php');
+if(isset($_GET['ViewRecord']) && $_SESSION['menuName']  && isset($_SESSION['username']))
+{	
+$username=$_SESSION['username'];
+
+$menuTableName= $_SESSION['menuTableName'];
+$menuName=$_SESSION['menuName'];
+$recID=$_GET['ViewRecord'];
+
+$menuTableName=entity::previousTable($menuTableName);
+
+$list=  entity::fetchTableRecord($menuTableName, $recID);
+$entityRow=entity::fetchRecord($menuTableName, $recID);
+$recName=  mysql_result($entityRow, 0,1);
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+$entityList=entity::fetchRecord($menuTableName,$recID);
+$entityName=mysql_result($entityList,0,0);
+}
+else{
+	header('location:index.php');
+}
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+
+</style>
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+  <div id="loginDetail">Welcome  <?php echo ucfirst($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <div id="navigationHeader"></div>
+    <ul>
+      <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+     <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>">
+        <li>
+        <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+          <?php   echo $name;  ?>
+        </li>
+        </a>
+      <?php
+    }
+    ?>
+    </ul>
+  </div>
+  <div id="post">
+      <div id="view">
+      <div id="viewHeader">
+      List <img src="../images/list_bullet.gif" width="4" height="5" /><img src="../images/list_bullet.gif" width="4" height="5" /> 
+                  <?php echo ucfirst($menuName).'s';?>
+		  <img src="../images/list_bullet.gif" width="4" height="5" /><img src="../images/list_bullet.gif" width="4" height="5" />
+		  <?php echo $entityName; ?>
+          </div>
+        <div style="color:#044407; font-size:x-large; font-weight:bold; margin:7px auto;">
+          Current Record Detials
+          </div>
+      <?php
+	  if(isset($_GET['action'])){
+		  $action=$_GET['action'];
+		  if( $action=='add')
+		  $msg='Added';
+		  if($action=='update')
+		  $msg='Updated';
+	  ?>
+      <div id="Success">Record was Successfully </div>
+      <?php
+	  }
+	  ?>
+      <table width="100%" cellpadding="5"  class="recordTable"  >
+        <?php
+		$k=1;
+	  foreach ($list as $value) {
+		 if($k%2==0)
+		  {
+			  $id="entityRowEven";
+		  }
+		  else{
+			  $id="entityRowOdd";
+		  } 
+		  $k++;
+	  ?>
+        <tr id="<?php echo $id; ?>">
+          <td width="218"><strong>
+            <?php	  echo ucwords($value->colName);	  ?>
+          </strong></td>
+          <td width="420"><?php	  echo $value->value;	  ?></td>
+        </tr>
+         <?php
+	  }
+	  ?>
+    </table>
+      </div>
+     
+      <div id="subMenu">
+       <ul>
+      <li>
+      <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a>
+      </li>
+      <li>
+      <a href="<?php echo"../Controller/RequestController.php?update&redID=$recID";?> ">Update</a>
+      </li>
+     
+      
+		<?php
+               
+		if($menuName=='Crop'){
+		?>
+            <li>
+                <a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=disease";?> ">View <?php echo ucwords($recName);  ?> Disease</a>
+      </li>
+      <li>
+      <a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=fertilizer";?> ">View <?php echo ucwords($recName);  ?> Fertilizer</a>
+      </li>
+      <li>
+      <a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=pest";?> ">View <?php echo ucwords($recName);  ?> Pest</a>
+       </li>
+      <li>
+        <a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=herbicide";?> ">View <?php echo ucwords($recName);  ?> Herbicide</a>
+        </li>
+      <li>
+        <a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=variety";?> ">View <?php echo ucwords($recName);  ?> Variety</a>
+        </li>
+      
+          <?php	
+		}
+		if($menuName=='pest')
+		{
+		?>
+    
+      <li>
+			<a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=pesticide";?> ">View Pest Pesticide</a>
+		</li>
+      
+         <?php	
+		}
+		if($menuName=='trader')
+		{
+		?>
+       
+      <li>
+			<a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=crop";?> ">View Trader Crop</a>
+		</li>
+  
+         <?php	
+		}
+		if($menuName=='market')
+		{
+		?>
+       
+      <li>
+			<a href="<?php echo"ManageCropRelationship.php?recID=$recID&parentTable=$menuName&childTable=crop";?> ">View Market Crop</a>
+		</li>
+      
+         <?php	
+		}
+		?>   
+        </ul>      
+      </div>
+     
+  </div>
+  
+  </div>
+<div id="footer">
+  <p>Copyright &copy; 2012 cellulant life is mobile</p>
+</div>
+</div>
+</body>
+</html>

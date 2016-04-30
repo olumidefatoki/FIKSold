@@ -1,0 +1,189 @@
+<?php
+include('../Controller/entity.php');
+if(isset($_GET['ViewRecord']) && $_SESSION['menuName']  && isset($_SESSION['username']))
+{	
+$username=$_SESSION['username'];
+$menuTableName= $_SESSION['menuTableName'];
+$menuName=$_SESSION['menuName'];
+$recID=$_GET['ViewRecord'];
+$menuTableName=entity::previousTable($menuTableName);
+$list=  entity::fetchRecord($menuTableName, $recID);
+$row=mysql_num_rows($list);
+if($row>0)
+{
+	
+	
+	
+	
+	
+	$Name=mysql_result($list,0,1);
+	
+	
+	
+	$groupLeadName=mysql_result($list,0,2);
+	$groupLeadPhoneNo=mysql_result($list,0,3);
+	$stateID=mysql_result($list,0,4);
+        $stateRow=  entity::fetchState('states', $stateID);
+        $state=mysql_result($stateRow,0,2);
+	$lgaID=mysql_result($list,0,5);
+        $lgaRow=  entity::fetchLGARecord('lga', $lgaID);
+        $lga=mysql_result($lgaRow,0,2);
+        $wardID=mysql_result($list,0,6);
+        $wardRow=  entity::fetchWardRecord('wards', $wardID);
+        $ward=mysql_result($wardRow,0,3);
+	
+	
+	
+}
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+$entityList=entity::fetchRecord($menuTableName,$recID);
+$entityName=mysql_result($entityList,0,0);
+}
+else{
+	header('location:index.php');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+
+
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>"> <li> 
+	  <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+	  <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+       <div id="viewHeader">
+      List <img src="../images/list_bullet.gif" width="4" height="5" /><img src="../images/list_bullet.gif" width="4" height="5" /> 
+                  <?php echo strtoupper($menuName).'S';?>
+		  <img src="../images/list_bullet.gif" width="4" height="5" /><img src="../images/list_bullet.gif" width="4" height="5" />
+		  <?php echo $entityName; ?>
+        </div>
+        <div style="color:#044407; font-size:x-large; font-weight:bold; margin:7px auto;">
+          Current Record Deatils
+        </div>
+      <?php
+	  if(isset($_GET['action'])){
+		  $action=$_GET['action'];
+		  if( $action=='add')
+		  $msg='Added';
+		  if($action=='update')
+		  $msg='Updated';
+	  ?>
+      <div id="Success">Record was Successfully </div>
+      <?php
+	  }
+	  ?>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="100%" cellpadding ="5" class="recordTable">
+        
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="313"> Farmer User Group Name</td>
+            <td width="328"><label for="fName"><?php echo $Name;
+
+?></label></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Fadama User Group Chairman Name</td>
+            <td><?php echo $groupLeadName;
+
+?></td>
+          </tr>
+         <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td>Fadama User Group Chairman Phone No</td>
+            <td><label for="fName"><?php echo $groupLeadPhoneNo;
+
+
+?></label></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>State</td>
+            <td><label for="gender"><?php echo $state;
+
+
+
+?></label></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>LGA</td>
+            <td><?php echo $lga;
+
+
+?></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Ward</td>
+            <td><?php echo $ward;
+
+
+
+?></td>
+          
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a> </li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  <?php
+  mysql_close();
+  ?>
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

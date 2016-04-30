@@ -1,0 +1,208 @@
+<?php
+//include('../Controller/entity.php');
+include('../Controller/RequestController.php');
+
+//session_start();
+if (isset($_POST['SearchFug'])) {
+    $displayTitle=true;
+    $username = $_SESSION['username'];
+    $menuTableName = $_SESSION['menuTableName'];
+    $menuName = $_SESSION['menuName'];
+
+    $page = (int) (!isset($_GET["page"]) ? 1 : $_GET["page"]);
+    $startpoint = ($page * $limit) - $limit;
+  if (isset($_POST['fca']) && $_POST['fca'] != 0) {
+        $fcaId = $_POST['fca'];
+          $Fuglist = entity::fetchFcaFug($fcaId,$startpoint, $limit);
+          $fugCount = mysql_num_rows($Fuglist);
+	 }
+  else if (isset($_POST['lga']) && $_POST['lga'] != 0) {
+        $lgaId = $_POST['lga'];
+        $Fuglist = entity::fetchLgaFug($lgaId,$startpoint, $limit);
+        $fugCount = mysql_num_rows($Fuglist);      
+        } 
+  else if (isset($_POST['state']) && $_POST['state'] != 0) {
+	  $stateId = $_POST['state'];
+	  $Fuglist = entity::fetchStateFug($stateId,$startpoint, $limit);
+          $fugCount = mysql_num_rows($Fuglist);
+          } 
+	$query=$_SESSION['query'];
+	//fecth a list of all the menus
+    $menuList = entity::fetchMenu();
+    $menuRow = mysql_num_rows($menuList);
+} elseif (isset($_SESSION['menuName']) or isset($_GET['actionSuccessfull']) && isset($_SESSION['username'])) {
+    $displayTitle=false;
+   
+
+    $username = $_SESSION['username'];
+    $menuTableName = $_SESSION['menuTableName'];
+    $menuName = $_SESSION['menuName'];
+    //fectch all the record for a table
+    $page = (int) (!isset($_GET["page"]) ? 1 : $_GET["page"]);
+    $startpoint = ($page * $limit) - $limit;
+    if (!isset($_SESSION['query'])) {
+        $Fuglist = entity::fetchAllFug($startpoint, $limit);
+        $fugCount = mysql_num_rows($Fuglist);
+        
+    }
+    else{
+         $query=$_SESSION['query'];
+        $Fuglist = entity::limitquery($query, $startpoint, $limit);
+        $fugCount = mysql_num_rows($Fuglist);
+    }
+       $query=$_SESSION['query'];
+       
+    
+    //fecth a list of all the menus
+    $menuList = entity::fetchMenu();
+    $menuRow = mysql_num_rows($menuList);
+
+    //to make pagination
+} else {
+    header('location:../index.php');
+}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Fadama Information Knowledge &amp; Services</title>
+        <script type="text/javascript" src="../script/jquery.min.js"></script>
+        <script type="text/javascript" src="../script/jquery.js"></script>
+        <script type="text/javascript" src="../script/customscripts.js"></script>
+        <link href="../css/main.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="header"><?php include 'sliding.php'; ?></div>
+            <div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+            <div id="content">
+                <div id="navigation">
+                    <div id="navigationHeader"></div>
+                    <ul>
+<?php
+for ($i = 0; $i < $menuRow; $i++) {
+    $id = mysql_result($menuList, $i, 0);
+    $tableName = mysql_result($menuList, $i, 1);
+    $name = mysql_result($menuList, $i, 2);
+    ?>
+                            <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name"; ?>">
+                                <li>
+                                    <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+                            <?php echo $name; ?>
+                                </li>
+                            </a>
+    <?php
+}
+?></ul>
+                </div>
+                <div id="post">
+                    <div id="view">
+                        <div style="color:#044407; font-size:28px; margin-top:2px ; margin-bottom:10px;">Fadama Users Group (FUG)
+
+                        </div>
+                        <div id="SearchHolder">
+                            <form id="form1" name="form1" method="post" action="ViewFug.php">
+                                <table width="100%" cellpadding="5">
+                                    <tr><td width="41%">       State : </td>
+                                        <td width="59%"><select name="state" id="state" onchange ="composeEntities('state','lga','stateId');" style="width:300px;">
+                                          <option >---------------------------Select a State---------------------------</option>
+                                          <?php
+$state = entity::fetchEntityList('states');
+$stateRows = mysql_num_rows($state);
+for ($i = 0; $i < $stateRows; $i++) {
+    $stateID = mysql_result($state, $i, 'stateID');
+    $stateName = mysql_result($state, $i, 'stateName');
+    ?>
+                                          <option value="<?php echo $stateID; ?>"><?php echo $stateName; ?></option>
+                                          <?php
+                                                }
+                                                ?>
+                                      </select></td>
+                                        <tr><td> Lga : </td>
+                                            <td><select name="lga" id="lga" disabled="disabled" onchange ="composeEntities('lga','fca','farmerlgaid');"  style="width:300px;">
+                                              <option >----------------------------All Lga----------------------------</option>
+                                          </select></td>
+</tr><tr>
+  <td>Fadama Community Association (FCA)</td>
+                                            <td><select name="fca" id="fca" disabled="disabled" onchange="composeEntities('fca','fug','fcaId');" style="width:300px;">
+                                              <option >----------------------------All FCA----------------------------</option>
+                                            </select></td>
+</tr>
+                                            <tr><td colspan="2" align="center">  <input type="submit" value="Search" name="SearchFug" id="SearchFug" /></td>
+
+                                                </table>
+</form>
+                                                        </div>
+                                                        <?php if($displayTitle==true){?>
+                                                        <div id=searchParam> Search Result for Farmer </div>
+                                                         <?php }?>
+                                                        <table width="100%" cellpadding="3" class="recordTable" >
+                                                          <tr bgcolor="#96C000">
+                                                                <td width="5%" bgcolor="#96C000">S/N</td>
+                                                                <td width="28%"> Name</td>
+                                                                <td width="21%" > FUG Leader Name</td>
+                                                                <td width="27%" >FUG Leader Phone No </td>
+                                                                <td width="19%">Action</td>
+                                                          </tr>
+<?php
+$i = 0;
+if ($fugCount > 0) {
+    for ($index = 0; $index < $fugCount; $index++) {
+        $fcaId = mysql_result($Fuglist, $index, 0);
+        $fcaName = mysql_result($Fuglist, $index, 1);
+        $fcaGroupName = mysql_result($Fuglist, $index, 2);
+        $fcaGroupPhoneNo = mysql_result($Fuglist, $index, 3);
+        
+        if ($i % 2 == 0) {
+            $bg = "entityRowOdd";
+        } else {
+            $bg = "entityRowEven";
+        }
+        $i++;
+        ?>
+                                                                    <tr id="<?php echo $bg; ?>">
+                                                                        <td><?php echo $fcaId; ?></td>
+                                                                        
+                                                                        <td><?php echo ucwords($fcaName); ?></td>
+                                                                         <td><?php echo ucwords($fcaGroupName) ; ?></td>
+                                                                         <td><?php echo ucwords($fcaGroupPhoneNo); ?></td>
+                                                                        <td><a href="<?php echo "../Controller/RequestController.php?ViewRecord=$fcaId" ?>"> View </a></td>
+                                                                    </tr>
+                                                                    <?php
+                                                                }
+                                                            } else {
+                                                                ?>
+                                                                <tr bgcolor="#96CA1D">
+                                                                    <td colspan="5" align="center">No Record Found</td>
+                                                                </tr>
+                                                                <?php
+                                                            }
+                                                            ?>
+                      </table>
+                                                        <div id="pagination">
+                                                            <?php
+                                                            echo pagination($query, $limit, $page, "ViewFug.php?");
+                                                            ?>
+                                                        </div>
+                                                        </div>
+                                                        <div id="subMenu">
+                                                            <ul>
+                                                                <li>
+                                                                    <a href="<?php echo"../Controller/RequestController.php?add"; ?> ">Add</a>
+                                                                </li>
+                                                            </ul>
+                                                            </table>
+                                                        </div>
+                                                        <p>&nbsp;</p>
+                                                        <p>&nbsp;</p>
+                                                        </div>
+
+                                                        </div>
+                                                        <div id="footer">
+                                                            <p>Copyright &copy; 2012 cellulant life is mobile</p>
+                                                        </div>
+                                                        </div>
+                                                        </body>
+                                                        </html>

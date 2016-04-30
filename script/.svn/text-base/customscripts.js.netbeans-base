@@ -1,0 +1,69 @@
+/* 
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+function getMessage(cropControl, msgTitleControl, seasonControl, boxToPopulateId){
+   
+    var crop = document.getElementById(cropControl);    
+    var cropId = crop.value;
+    
+    var msgTitle = document.getElementById(msgTitleControl);    
+    var msgTitleName = msgTitle.value;
+    
+    var season = document.getElementById(seasonControl);    
+    var seasonName = season.value;
+     
+      var msg="broadcastCropID="+cropId+"&msgTitle="+msgTitleName+"&season="+seasonName;
+   
+   if (window.XMLHttpRequest)
+    {
+       // code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            document.getElementById(boxToPopulateId).innerHTML=xmlhttp.responseText;
+            document.getElementById('msg').innerHTML=  document.getElementById(boxToPopulateId).innerHTML;
+             result= xmlhttp.responseText;
+         }
+    } 
+    xmlhttp.open("GET","../Controller/RequestController.php?"+msg,true);
+    xmlhttp.send();
+}
+function composeEntities( selectBoxId, boxToPopulateId, param){
+    
+   
+   
+    var selectId = document.getElementById(selectBoxId);    
+    var id = selectId.value;
+   
+    
+    var xmlhttp;
+    
+    if (window.XMLHttpRequest)
+    {// code for IE7+, Firefox, Chrome, Opera, Safari
+        xmlhttp=new XMLHttpRequest();
+    }
+    else
+    {// code for IE6, IE5
+        xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            document.getElementById(boxToPopulateId).innerHTML=xmlhttp.responseText;
+            document.getElementById(boxToPopulateId).disabled=false;
+            result= xmlhttp.responseText;
+        }
+    } 
+    xmlhttp.open("GET","../Controller/RequestController.php?"+param+"="+id,true);
+    xmlhttp.send();
+}

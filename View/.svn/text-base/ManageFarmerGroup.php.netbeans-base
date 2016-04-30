@@ -1,0 +1,226 @@
+<?php
+
+include('../Controller/entity.php');
+//session_start();
+if(isset($_GET['action']) && isset($_GET['id'])&& isset($_SESSION['username']))
+{
+	
+$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$recID=$_GET['id'];
+$menuName=$_SESSION['menuName'];
+$entityName=$_SESSION['menuTableName'];
+$result= entity::fetchRecord($entityName,$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$fetilizername=  mysql_result($result, 0, 1);
+$description=  mysql_result($result, 0, 2);
+
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+}
+
+else if(isset($_GET['action']) && isset($_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$menuName=$_SESSION['menuName'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['menuTableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+}
+else{
+	header('location:../index.php');
+}
+
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+<script type="text/javascript" src="../script/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	
+$("#state").change(function(){
+	$("#stateloading")
+		.ajaxStart(function() {
+		    $("#stateloading").css("display","inline-block");
+           });
+	var id=$(this).val();
+        var dataString ='stateid='+ id;
+	    $.ajax({
+        type: "POST",
+        url: "../Controller/RequestController.php",
+        data: dataString,
+        cache: false,
+        success: function(html){
+        $("#lga").html(html);} 
+        });
+        $("#stateloading")
+        .ajaxComplete(function(){
+             $("#stateloading").css("display","none");
+          });
+      });
+$("#lga").change(function(){
+	$("#wardloading")
+		.ajaxStart(function() {
+                    $("#stateloading").css("display","none");
+		    $("#wardloading").css("display","inline-block");
+           });
+        var id=$(this).val();
+        var dataString ='lgaid='+ id;
+        $.ajax({
+        type: "POST",
+        url: "../Controller/RequestController.php",
+        data: dataString,
+        cache: false,
+        success: function(html){	
+        $("#ward").html(html);} 
+        }); 
+        $("#wardloading")
+        .ajaxComplete(function(){
+             $("#wardloading").css("display","none");
+          });
+        });
+});
+
+
+</script>
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><img src="../images/banner.jpg" alt="" width="1000" height="200" /></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>"> <li>
+      <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+       <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+       <div id="addRecord">
+        <?php  if($action=='add'){
+		echo 'Add New '.$menuName;
+		}
+		 else if($action=='update'){
+			  echo 'Update  '.$menuName.'  '.$fetilizername;
+			  } ?>
+        </div>
+      <div style="color:#FFF;">
+      Please fill all fields
+      </div>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="100%" cellspacing="1">
+        
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="122"> Group Name</td>
+            <td width="274"><label for="phoneNo"></label>
+            <input name="name" type="text" id="name"  value="<?php if($action=='update'){echo $fetilizername;} ?>" size="40"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Group Lead Name</td>
+            <td><input name="leadName" type="text" id="leadName" value="<?php if($action=='update'){echo $description;} ?>" size="40" $description/></td>
+          </tr>
+         <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="122"> Group Phone No</td>
+            <td width="274"><label for="phoneNo"></label>
+            <input name="phoneNo" type="text" id="phoneNo"  value="<?php if($action=='update'){echo $fetilizername;} ?>" size="40"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          <tr id="entityRowEven">
+            <td>State </td>
+            <td><select name="state" id="state" >
+             <option selected="selected">--Select a State--</option>
+              <?php
+			  
+			  $state=entity::fetchEntityList('states');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $stateID=mysql_result($state,$i,'stateID');
+				  $stateName=mysql_result($state,$i,'stateName');
+			  ?>
+              <option value="<?php echo $stateID; ?>"><?php echo $stateName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select>
+            
+            </td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>LGA </td>
+            <td><select name="lga" id="lga" >
+              <option selected="selected">--Select a LGA--</option>
+            </select>
+                <div id="stateloading" style="display:none;" ><img src="../images/ajax-loader1.gif"/>&nbsp; &nbsp;Loading </div>
+            </td>
+          </tr>
+          <tr id="entityRowEven">
+            <td>Ward </td>
+            <td><select name="ward" id="ward" >
+              <option selected="selected">--Select a Ward--</option>
+            </select>
+            <div id="wardloading" style="display:none;" ><img src="../images/ajax-loader.gif"/>&nbsp; &nbsp;Loading </div>
+            </td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowEven">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2" >
+          <div id="subMenu3">
+            <ul>
+              <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a></li>
+            </ul>
+            </table>
+          </div>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+<div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

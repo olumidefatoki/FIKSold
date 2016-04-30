@@ -1,0 +1,1205 @@
+<?php
+session_start();
+class entity
+{
+    
+var $ID;	
+var $name;
+public static $mylist=array();
+var $colName;
+var $value;
+public static function DbConnect()
+{
+    $host="localhost";
+	 $pass="dfat#2000";
+	 $userName="confada2";
+	 $database="fadama";
+	 $connection=null;
+	 $connection=mysql_connect($host,'root','ollysun');
+	if(!$connection)
+        echo 'Failed to obtain a succesful connection to the localHost';
+	mysql_select_db($database,$connection)or die(mysql_error());
+       
+}
+
+public static function fetchList($table,$startpoint,$limit)
+{
+        self::DbConnect();
+        $list=array();
+        $tableName= strtolower($table);
+		 $_SESSION['genricQuery']= "select * from {$tableName}";
+        $sql=" select * from {$tableName} LIMIT {$startpoint} , {$limit}";  
+        
+             $result=mysql_query($sql)or die(mysql_error());
+            while($rd=mysql_fetch_array($result))
+            {
+                $obj=new entity();
+                $obj->ID=$rd[0];
+                $obj->name=$rd[1];
+
+                $list[]=$obj;
+                self::$mylist[]=$obj;
+            } 
+        
+        return $list;
+        mysql_close();
+}
+public static function fetchFarmerList($table,$startpoint,$limit)
+{
+        self::DbConnect();
+        $tableName= strtolower($table);
+        $sql=" select ID,firstName,lastName,MSISDN,address from {$tableName} ";
+        $_SESSION['query']=$sql;
+        $sql=$sql." LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+public static function fetchFcaList($menuTableName, $fcaId,$startpoint , $limit){
+        self::DbConnect();
+        
+        $sql=" select ID,firstName,lastName,MSISDN,address from {$menuTableName} where FUGID='$fcaId' LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+public static function limitquery($query,$startpoint , $limit){
+    self::DbConnect();
+    $sql=$query." LIMIT {$startpoint} , {$limit}";
+    $result=mysql_query($sql)or die(mysql_error());
+    return $result;
+    mysql_close();
+}
+public static function limitCropQuery($menuTableName,$query,$startpoint , $limit){
+    self::DbConnect();
+        $list=array();
+        $tableName= strtolower($menuTableName);
+		  $sql=$query." LIMIT {$startpoint} , {$limit}";
+               
+             $result=mysql_query($sql)or die(mysql_error());
+            while($rd=mysql_fetch_array($result))
+            {
+                $obj=new entity();
+                $obj->ID=$rd[0];
+                $obj->name=$rd[1];
+
+                $list[]=$obj;
+                self::$mylist[]=$obj;
+            }
+       
+        
+        return $list;
+        mysql_close();
+}
+public static function fetchAllFcaList($menuTableName,$startpoint , $limit){
+        self::DbConnect();
+        $_SESSION['query']=" select ID,Name,groupLeadName,groupPhoneNo from {$menuTableName}";
+        $sql=" select ID,Name,groupLeadName,groupPhoneNo from {$menuTableName}  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+
+public static function fetchFarmerFugList($menuTableName, $fcaId){
+        self::DbConnect();
+        
+        $sql=" select count(*) as num from {$menuTableName} where FUGID='$fcaId' ";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+
+public static function fetchStateFug($stateId,$startpoint, $limit){
+         self::DbConnect();
+         $sql="select f.ID,f.Name,f.groupLeadName,f.groupPhoneNo from fug  f inner join fca  fca on fca.ID=f.FCAID  and fca.stateID=$stateId ";
+        $_SESSION['query']= $sql;
+        $sql=$sql."  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error("fetchStateFug"));
+        return $result;
+        mysql_close();
+}
+public static function fetchLgaFug($lgaId,$startpoint, $limit){
+         self::DbConnect();
+         $sql="select f.ID,f.Name,f.groupLeadName,f.groupPhoneNo from fug  f inner join fca  fca on fca.ID=f.FCAID  and fca.LgaID=$lgaId ";
+        $_SESSION['query']= $sql;
+        $sql=$sql."  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error("fetchLgaFug"));
+        return $result;
+        mysql_close();
+}
+public static function fetchFcaFug($fcaId,$startpoint, $limit){
+         self::DbConnect();
+         $sql="select f.ID,f.Name,f.groupLeadName,f.groupPhoneNo from fug  f where f.FCAID =$fcaId ";
+        $_SESSION['query']= $sql;
+        $sql=$sql."  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error("fetchFcaFug"));
+        return $result;
+        mysql_close();
+}
+public static function fetchAllFug($startpoint, $limit){
+         self::DbConnect();
+         $sql="select f.ID,f.Name,f.groupLeadName,f.groupPhoneNo from fug  f  ";
+        $_SESSION['query']= $sql;
+        $sql=$sql."  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error("fetchAllFug"));
+        return $result;
+        mysql_close();
+}
+public static function fetchstateFca($menuTableName, $stateId,$startpoint, $limit){
+         self::DbConnect();
+         $sql="select ID,Name,groupLeadName,groupPhoneNo from {$menuTableName} where stateID=$stateId";
+        $_SESSION['query']=$sql;
+        $sql=$sql." LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+public static function fetchlgaFca($menuTableName, $lgaId,$startpoint, $limit){
+         self::DbConnect();
+        $_SESSION['query']=" select ID,Name,groupLeadName,groupPhoneNo from {$menuTableName} where LgaID=$lgaId";
+        $sql="  select ID,Name,groupLeadName,groupPhoneNo from {$menuTableName} where LgaID=$lgaId  LIMIT {$startpoint} , {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+}
+
+    public static function getStateFarmer( $stateId,$startpoint, $limit){
+        self::DbConnect();
+        $sql="select f.ID,  f.firstName,f.lastName,f.MSISDN ,f.address from farmers f inner join fug  fug on  f.FUGID  =fug.ID  inner join fca fca on fug.ID=fca.ID  inner join  states s on s.stateID=FCA.stateID and  s.stateID='$stateId'";
+         $_SESSION['query']=$sql;
+        $sql=$sql."  limit {$startpoint}, {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+    }  
+    public static function getlgaFarmer( $lgaId,$startpoint, $limit){
+        self::DbConnect();
+        $sql=" select f.ID, f.firstName,f.lastName,f.MSISDN ,f.address from farmers f inner join fug  fug on  f.FUGID  =fug.ID  inner join fca fca on fug.ID=fca.ID  inner join  lga l on l.lgaID=FCA.LgaID and  l.lgaID='$lgaId'";
+         $_SESSION['query']=$sql;
+        $sql=$sql." limit {$startpoint}, {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+    } public static function getFcaFarmer( $fcaId,$startpoint, $limit){
+        self::DbConnect();
+        $sql="select  f.ID,f.firstName,f.lastName,f.MSISDN ,f.address from farmers f inner join fug  fug on  f.FUGID  =fug.ID  inner join fca fca on fug.ID=fca.ID   and  fca.ID='$fcaId'";
+        $_SESSION['query']=$sql;
+        $sql=$sql." limit {$startpoint}, {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+    } 
+    public static function getFugFarmer( $fugId,$startpoint, $limit){
+        self::DbConnect();
+        $sql="select  f.ID,f.firstName,f.lastName,f.MSISDN ,f.address from farmers f inner join fug  fug on  f.FUGID=fug.ID   and  fug.ID='$fugId'";
+        $_SESSION['query']=$sql;
+        $sql=$sql."  limit {$startpoint}, {$limit}";  
+        $result=mysql_query($sql)or die(mysql_error());
+        return $result;
+        mysql_close();
+    } 
+public static function fetchRec($table,$name,$startpoint,$limit)
+{
+        self::DbConnect();
+        $list=array();
+        $tableName= strtolower($table);
+		 $_SESSION['genricQuery']="select * from ".$tableName. " where Name ='$name'";
+        $sql=" select * from ".$tableName. " where Name ='$name' LIMIT {$startpoint} , {$limit}";  
+        
+             $result=mysql_query($sql)or die(mysql_error());
+            while($rd=mysql_fetch_array($result))
+            {
+                $obj=new entity();
+                $obj->ID=$rd[0];
+                $obj->name=$rd[1];
+
+                $list[]=$obj;
+                self::$mylist[]=$obj;
+            }
+       
+        
+        return $list;
+        mysql_close();
+}
+public static function fetchTableRecord($tableName,$id)
+{
+        self::DbConnect();
+            $list=array();
+        $id=mysql_real_escape_string($id);
+        $sql=" select * from ".$tableName." where id ='$id'";
+        $result=mysql_query($sql)or die(mysql_error());
+
+        $cols=  mysql_num_fields($result);
+        for($i=0;$i<$cols;$i++)
+        {
+            $obj=new entity();
+            $obj->colName=mysql_fieldname($result,$i);
+            $obj->value=  mysql_result($result, 0,$obj->colName);
+            $list[]=$obj;
+        }
+        mysql_close();
+        return $list;
+}
+public static function fetchMenu()
+{
+       self::DbConnect();
+        $sql=" select * from menu";
+        $result=mysql_query($sql) or die(mysql_error());        
+         mysql_close();
+         return $result; 
+}
+public static function deleteRecord($tableName,$id)
+{
+       self::DbConnect();
+       $id=mysql_real_escape_string($id);
+        $sql=" delete from ".$tableName." where ID ='$id'";
+        mysql_query($sql) or die(mysql_error());
+        mysql_close();
+}
+public static function insertFertilizer($name,$description)
+{
+    self::DbConnect();
+    $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $sql=" insert into  ".$tableName." values('','$name','$description')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name'and  fertilizerDescription='$description'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertFca($fcaName, $fcaLeaderName,$fcaLeaderPhoneNo,$state,$lga)
+{
+    self::DbConnect();  
+   $sql=" insert into fca values('','$fcaName','$fcaLeaderName','$fcaLeaderPhoneNo','$state','$lga',now())";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from fca where Name='$fcaName'and  groupLeadName='$fcaLeaderName'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertFug($fugName, $fugLeaderName,$fugLeaderPhoneNo,$fca)
+{
+    self::DbConnect();  
+   $sql=" insert into fug values('','$fugName','$fugLeaderName','$fugLeaderPhoneNo','$fca',now())";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from fug where Name='$fugName'and  groupPhoneNo='$fugLeaderPhoneNo'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertPesticide($name,$description)
+{
+    self::DbConnect();
+   $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $sql=" insert into  ".$tableName." values('','$name','$description')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from  ".$tableName." where Name='$name'and  pesticideDescription='$description'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertHerbicide($name, $description,$timing,$dosage)
+{
+    self::DbConnect();
+   $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $timing=mysql_real_escape_string($timing);
+   $dosage=mysql_real_escape_string($dosage);
+   $sql=" insert into  ".$tableName." values('','$name','$description','$timing','$dosage')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from  ".$tableName." where Name='$name'and  herbicideDescription='$description'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertTrader($name, $marketID)
+{
+    self::DbConnect();
+    $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $marketID=mysql_real_escape_string($marketID);
+   $sql=" insert into  ".$tableName." values('','$name','$marketID')";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name'and  marketID='$marketID'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertMarket($name,$address,$state,$lga,$ward,$marketDay)
+{
+    self::DbConnect();
+   $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $address=mysql_real_escape_string($address);
+   $state=mysql_real_escape_string($state);
+   $lga=mysql_real_escape_string($lga);
+   $ward=mysql_real_escape_string($ward);
+   $marketDay=mysql_real_escape_string($marketDay);
+   $sql=" insert into ".$tableName." values('','$name','$address','$ward','$lga','$state','$marketDay')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name' and  marketAddress='$address' and lgaID='$lga'";
+   $result=mysql_query($sql)or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertPest($name,$description)
+{
+    self::DbConnect();
+  $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $sql=" insert into  ".$tableName." values('','$name','$description')";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from  ".$tableName." where Name='$name'and  pestDescription='$description'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+ mysql_close();
+}
+public static function insertDisease($name,$description)
+{
+   self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $sql=" insert into  ".$tableName." values('','$name','$description')";
+   mysql_query($sql)or  die(mysql_error());
+   $sql="select ID from  diseases where Name='$name'and diseaseDescription='$description'";
+   $result=mysql_query($sql) or  die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+  
+ mysql_close();
+}
+public static function insertCropFertilizer($crop, $fertilizer)
+{
+    self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $crop=mysql_real_escape_string($crop);
+   $fertilizer=mysql_real_escape_string($fertilizer);
+   $sql=" insert into  ".$tableName." values('','$crop','$fertilizer')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where cropID='$crop'and  fertilizerID='$fertilizer'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertCropDisease($crop, $disease)
+{
+    self::DbConnect();
+  $tableName= $_SESSION['menuTableName'];
+   $crop=mysql_real_escape_string($crop);
+   $disease=mysql_real_escape_string($disease);
+   $sql=" insert into  ".$tableName." values('','$crop','$disease')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where cropID='$crop'and  diseaseID='$disease'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertCropVariety($variety,$original,$characteristics,$yield,$cropID)
+{
+    self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $variety=mysql_real_escape_string($variety);
+   $original=mysql_real_escape_string($original);
+    $characteristics=mysql_real_escape_string($characteristics);
+   $yield=mysql_real_escape_string($yield);
+   $cropID=mysql_real_escape_string($cropID);
+   $sql=" insert into  ".$tableName." values('','$variety','$original','$characteristics','$yield','$cropID')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where cropID='$cropID'and  Name='$variety'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertCropPest($crop, $pest)
+{
+    self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $crop=mysql_real_escape_string($crop);
+   $pest=mysql_real_escape_string($pest);
+   $sql=" insert into  ".$tableName." values('','$crop','$pest')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where cropID='$crop'and  pestID='$pest'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertCrop($name, $description,$cycleMonth)
+{
+   
+    self::DbConnect();
+   $tableName=  $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string(strtolower($name));
+   $description=mysql_real_escape_string($description);
+   $cycleMonth=mysql_real_escape_string($cycleMonth);
+   $sql=" insert into  ".$tableName." values('','$name','$description','$cycleMonth')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name'and  cropDescription='$description'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertInSeason($langID, $cropVariety,$accessChannel,$seedRate,$seedTreatment,$sowingDate,$spacing,$fertilizerApp,$weedControl,$chemicalControl,$harvesting,$striga,$diseases,$IPM,$extraInfo)
+{
+    self::DbConnect();
+   $tableName=  $_SESSION['menuTableName'];
+   $langID=mysql_real_escape_string($langID);
+   $accessChannel=mysql_real_escape_string($accessChannel);
+   $cropVariety=mysql_real_escape_string($cropVariety);
+   $seedRate=mysql_real_escape_string($seedRate);
+   $seedTreatment=mysql_real_escape_string($seedTreatment);
+   $sowingDate=mysql_real_escape_string($sowingDate);
+   $spacing=mysql_real_escape_string($spacing);
+   $fertilizerApp=mysql_real_escape_string($fertilizerApp);
+   $weedControl=mysql_real_escape_string($weedControl);
+   $chemicalControl=mysql_real_escape_string($chemicalControl);
+   $harvesting=mysql_real_escape_string($harvesting);
+   $extraInfo=mysql_real_escape_string($extraInfo);
+   
+   $striga=mysql_real_escape_string($striga);
+   $diseases=mysql_real_escape_string($diseases);
+   $IPM=mysql_real_escape_string($IPM);
+   $sql=" insert into  ".$tableName." values('','$langID','$accessChannel','$cropVariety','$seedRate','$seedTreatment','$sowingDate','$spacing','$fertilizerApp','$weedControl','$chemicalControl','$harvesting','$striga','$diseases','$IPM','$extraInfo')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where langID='$langID'and  cropID='$cropVariety' and accessChannel='$accessChannel'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function updateInSeason($id,$langID, $cropID,$accessChannel,$seedRate,$seedTreatment,$sowingDate,$spacing,$fertilizerApp,$weedControl,$chemicalControl,$harvesting,$striga,$diseases,$IPM,$extraInfo)
+{
+    self::DbConnect();
+   $id=mysql_real_escape_string($id);
+   echo $id; 
+   $langID=mysql_real_escape_string($langID);
+   $accessChannel=mysql_real_escape_string($accessChannel);
+   $cropID=mysql_real_escape_string($cropID);
+   $seedRate=mysql_real_escape_string($seedRate);
+   $seedTreatment=mysql_real_escape_string($seedTreatment);
+   $sowingDate=mysql_real_escape_string($sowingDate);
+   $spacing=mysql_real_escape_string($spacing);
+   $fertilizerApp=mysql_real_escape_string($fertilizerApp);
+   $weedControl=mysql_real_escape_string($weedControl);
+   $chemicalControl=mysql_real_escape_string($chemicalControl);
+   $harvesting=mysql_real_escape_string($harvesting);
+   $extraInfo=mysql_real_escape_string($extraInfo);
+   
+   $striga=mysql_real_escape_string($striga);
+   $diseases=mysql_real_escape_string($diseases);
+   $IPM=mysql_real_escape_string($IPM);
+   $sql=" update in_season set langID='$langID',AccessChannel='$accessChannel',CropID='$cropID',seedRate='$seedRate',seedTreatment='$seedTreatment', 
+   sowingDate='$sowingDate',spacing='$spacing',fertilizerApplication='$fertilizerApp',weedControl='$weedControl',chemicalControl='$weedControl',
+   harvesting='$harvesting',Striga='$striga',Diseases='$diseases',IntegratedPestManagement='$IPM',extra_Info='$extraInfo' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+      
+   mysql_close();
+}
+public static function insertPreSeason($langID, $cropID,$accessChannel,$site,$land,$ploughing,$ridging,$harrowing,$extraInfo)
+{  
+   self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $sql=" insert into  ".$tableName." values('','$langID','$accessChannel','$cropID','$site','$land','$ploughing','$harrowing','$ridging','$extraInfo','','')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where langID='$langID'and  cropID='$cropID' and accessChannel='$accessChannel'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertPostSeason($cropID,$langID,$accessChannel,$processing,$delivery,$storage,$farmBus,$finance,$rawMaterial,$extraInfo)
+{  
+   self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $sql=" insert into  ".$tableName." values('','$langID','$accessChannel','$cropID','$processing','$delivery','$storage','$farmBus','$finance','$rawMaterial','$extraInfo')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where langID='$langID'and  cropID='$cropID' and accessChannel='$accessChannel'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+
+public static function insertPestPesticide($pestID, $pesticideID)
+{
+    self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $pestID=mysql_real_escape_string($pestID);
+   $pesticideID=mysql_real_escape_string($pesticideID);
+   $sql=" insert into  ".$tableName." values('','$pestID','$pesticideID')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where pestID='$pestID'and pesticideID='$pesticideID'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+
+public static function insertCropHerbicide($herbicideID,$applicationPeriod,$qty,$cropID)
+{
+    self::DbConnect();
+    
+   $tableName= $_SESSION['menuTableName'];
+   $herbicideID=mysql_real_escape_string($herbicideID);
+   $applicationPeriod=mysql_real_escape_string($applicationPeriod);
+   $qty=mysql_real_escape_string($qty);
+   $cropID=mysql_real_escape_string($cropID);
+   
+   $sql=" insert into  ".$tableName." values('','$cropID','$herbicideID','$applicationPeriod','$qty')";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from ".$tableName." where cropID='$cropID'and  herbicideID='$description'";
+   $result=mysql_query($sql)or die(mysql_error());
+   $rows=  mysql_num_rows($result) ;
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+
+public static function insertTraderCrop($traderId, $cropID,$qty,$price)
+{
+    self::DbConnect();
+    
+  $tableName= $_SESSION['menuTableName'];
+   $traderId=mysql_real_escape_string($traderId);
+   $cropID=mysql_real_escape_string($cropID);
+   $qty=mysql_real_escape_string($qty);
+   $price=mysql_real_escape_string($price);
+   
+   $sql=" insert into  ".$tableName." values('','$traderId','$cropID','$qty','$price')";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from  ".$tableName." where traderID='$traderId'and  cropID='$cropID'";
+   $result=mysql_query($sql)or die(mysql_error());
+   $rows=  mysql_num_rows($result) ;
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertMarketCrop($marketID, $cropID,$price)
+{
+    self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $marketID=mysql_real_escape_string($marketID);
+   $cropID=mysql_real_escape_string($cropID);
+  
+   $price=mysql_real_escape_string($price);
+   
+   $sql=" insert into  ".$tableName." values('','$price','$cropID','$marketID')";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from  ".$tableName." where marketID='$marketID'and  cropID='$cropID'";
+   $result=mysql_query($sql)or die(mysql_error());
+   $rows=  mysql_num_rows($result) ;
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   mysql_close();
+}
+public static function insertBroadcast($searchCriteria,$searchValue,$season,$cropID,$messageTitle,$msgContent,$deliveryDate)
+{
+    self::DbConnect();
+ 
+   
+   $sql=" insert into  broadcast values('','$searchCriteria','$searchValue','$season','$cropID','$messageTitle','$msgContent',now(),'$deliveryDate','7')";
+   mysql_query($sql)or die(mysql_error());
+      mysql_close();
+}
+
+public static function insertFarmerGroup($name,$leadName,$phoneNo,$state,$lga,$ward)
+{
+    self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $leadName=mysql_real_escape_string($leadName);
+   $phoneNo=mysql_real_escape_string($phoneNo); 
+   $state=mysql_real_escape_string($state);
+   $lga=mysql_real_escape_string($lga);
+   $ward=mysql_real_escape_string($ward);
+   $sql=" insert into  ".$tableName." values('','$name','$leadName','$phoneNo','$state','$lga', '$ward',now())";
+   mysql_query($sql)or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name'and  groupPhoneNo='$phoneNo'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+
+public static function insertFarm($name, $size,$location,$lga)
+{
+    self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $size=mysql_real_escape_string($size);
+   $location=mysql_real_escape_string($location);
+   $lga=mysql_real_escape_string($lga);
+  
+   $sql=" insert into  ".$tableName."  values('','$name','$size','$location','$lga')";
+   mysql_query($sql) or die(mysql_error());
+   $sql="select ID from ".$tableName." where Name='$name'and farmLocation='$location' and lgaID='$lga'";
+   $result=mysql_query($sql);
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   return $id;
+   
+   mysql_close();
+}
+public static function insertFarmer($fName,$lName,$status,$gender,$size,$address,$phoneNo,$language,$phoneType,$market,$fug,$fca,$lga,$state,$crop1,$crop2,$crop3)
+{
+    self::DbConnect();
+   
+  $tableName= $_SESSION['menuTableName'];
+   $sql=" insert into  ".$tableName." values('','$language','$state','$lga','$fca','$fug','$fName','$lName','$status','$gender','$size','$address','$phoneNo','$phoneType','$market',now())";
+   mysql_query($sql);
+   $sql="select ID from  ".$tableName." where firstName='$fName'and lastName='$lName'and MSISDN='$phoneNo'";
+   $result=mysql_query($sql) or die(mysql_error());
+   $rows=  mysql_num_rows($result);
+   for ($index = 0; $index < count($rows); $index++) {
+       $id=  mysql_result($result, $index, 0);
+   }
+   
+   $sql="insert into farmercrops values('','$id','$crop1'),('','$id','$crop2'),('','$id','$crop3')";
+   $result=mysql_query($sql) or die(mysql_error());
+   return $id;
+   
+   mysql_close();
+}
+public static function updateFertilizer($name,$description,$id)
+{
+    self::DbConnect();
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $id=mysql_real_escape_string($id);
+   $tableName= $_SESSION['menuTableName'];
+   $sql="update  ".$tableName."  set Name='$name', fertilizerDescription='$description' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateTrader($name, $marketID,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $marketID=mysql_real_escape_string($marketID);
+   $id=mysql_real_escape_string($id);
+   
+   $sql="update  ".$tableName."  set Name='$name', marketID='$marketID' where ID='$id'";
+   mysql_query($sql)or die(mysql_error());
+   mysql_close();
+}
+public static function updateMarket($name,$address,$state,$lga,$marketDay,$id)
+{
+   self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $address=mysql_real_escape_string($address);
+   $state=mysql_real_escape_string($state);
+   $lga=mysql_real_escape_string($lga);
+   $marketDay=mysql_real_escape_string($marketDay);
+   $id=mysql_real_escape_string($id);
+   $sql="update  ".$tableName." set Name='$name',marketAddress='$address',lgaID='$lga',stateID='$state',marketDay='$marketDay' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updatePest($name,$description,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $id=mysql_real_escape_string($id);
+   $sql="update  ".$tableName."  set Name='$name', pestDescription='$description' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateFarm($name,$size,$location,$lga,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $size=mysql_real_escape_string($size);
+   $location=mysql_real_escape_string($location);
+   $lga=mysql_real_escape_string($lga);
+   $id=mysql_real_escape_string($id);
+   
+   $sql="update  ".$tableName."  set Name='$name',farmSize='$size',farmLocation='$location',lgaID=' $lga' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateDisease($name,$description,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $id=mysql_real_escape_string($id);
+   $sql="update  ".$tableName."  set Name='$name', diseaseDescription='$description' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateFarmerGroup($name,$leadName,$phoneNo,$id)
+{
+   self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $leadName=mysql_real_escape_string($leadName);
+   $phoneNo=mysql_real_escape_string($phoneNo);
+   $id=mysql_real_escape_string($id);
+   $sql="update  ".$tableName."  set Name='$name',groupLeadName='$leadName',groupPhoneNo='$phoneNo',dateModified=now() where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateFarmer($fName,$lName,$age,$gender,$size,$address,$phoneNo,$state,$lga,$ward,$language,$group,$id)
+{
+   self::DbConnect();
+    $tableName= $_SESSION['menuTableName'];
+   $fName=mysql_real_escape_string($fName);
+   $lName=mysql_real_escape_string($lName);
+   $age=mysql_real_escape_string($age);
+   $gender=mysql_real_escape_string($gender);
+   $size=mysql_real_escape_string($size);
+   $address=mysql_real_escape_string($address);
+   $phoneNo=mysql_real_escape_string($phoneNo);
+   $state=mysql_real_escape_string($state);
+   $lga=mysql_real_escape_string($lga);
+   $ward=mysql_real_escape_string($ward);
+   $language=mysql_real_escape_string($language);
+   $group=mysql_real_escape_string($group);
+   $id=mysql_real_escape_string($id);
+   $sql="update  ".$tableName."  set lastName='$lName',firstName='$fName' where ID='$id'";
+   mysql_query($sql)or die(mysql_error());
+   mysql_close();
+}
+public static function updateCrop($name,$description,$cycleMonth,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $sql="update  ".$tableName."  set Name='$name', cropDescription='$description',cropCycleMonths='$cycleMonth' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updatePesticide($name,$description,$id)
+{
+    self::DbConnect();
+     $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $id=mysql_real_escape_string($id);
+   
+   $sql="update  ".$tableName."  set Name='$name', pesticideDescription='$description' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function updateHerbicide($name,$description,$id)
+{
+    self::DbConnect();
+   $tableName= $_SESSION['menuTableName'];
+   $name=mysql_real_escape_string($name);
+   $description=mysql_real_escape_string($description);
+   $id=mysql_real_escape_string($id);
+   
+   $sql="update  ".$tableName."  set Name='$name',herbicideDescription='$description' where ID='$id'";
+   mysql_query($sql) or die(mysql_error());
+   mysql_close();
+}
+public static function fetchPractise($season,$PackagePractise,$crop,$lang)
+{
+        self::DbConnect();
+        $sql=" select  {$PackagePractise} from  {$season}  where CropID=$crop  and  langID={$lang} and AccessChannel='Web'" ;
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchRecord($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where ID ='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchtotalFarmer($id)
+{
+        self::DbConnect();
+        $sql=" select count(f.ID), b.farmerGroupID  from  broadcast b inner join farmers f on f.FUGID= b.farmerGroupID and b.ID ='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchloadedFarmer($id)
+{
+        self::DbConnect();
+        $sql=" select count(o.farmerID)  from broadcast b inner join  outMessages o on o.farmerID= b.ID and b.farmerGroupID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchLGA($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where stateID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchLGARecord($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where lgaID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+
+public static function fetchbroadcast($tableName)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." order by dateInserted asc";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchWardRecord($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where wardID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchState($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where stateID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchWard($tableName,$id)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where lgaID='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function getStateName($state)
+{
+        self::DbConnect();
+        $sql=" select stateName from states where stateID='$state'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchSeasonRecord($tableName,$name)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where Name ='$name'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+
+public static function fetchinSeasonRecord($tableName,$ID)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where cropVarietyID ='$ID'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchOtherSeasonRecord($tableName,$ID)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where cropID ='$ID'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchCropVariety($tableName,$ID)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where cropID ='$ID'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchMapping($tableName,$id,$fieldName)
+{
+        self::DbConnect();
+        $sql=" select * from ".$tableName." where ".$fieldName."ID ='$id'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();        
+}
+public static function fetchEntity($tableName,$startpoint,$limit)
+{
+        self::DbConnect();
+        $sql=" select * from {$tableName} limit {$startpoint},{$limit} ";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();         
+}
+public static function fetchEntityList($tableName){
+  self::DbConnect();
+        $sql=" select * from {$tableName}  ";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();   
+}
+public static function fetchMessage($msgTitle,$season,$cropID)
+{
+        self::DbConnect();
+        $sql=" select {$msgTitle} from {$season} where cropID='$cropID' and accessChannel='Mobile'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();         
+}
+public static function fetchfarmerFCA($lgaId)
+{
+        self::DbConnect();
+        $sql=" select * from fca where LgaID='$lgaId' ";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();         
+}
+public static function fetchfarmerFUG($Id)
+{
+        self::DbConnect();
+        $sql=" select * from fug where FCAID='$Id' ";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();         
+}
+public static function login($username,$password)
+{
+        self::DbConnect();
+        $sql=" select * from  users where username='$username' and password='$password'";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();
+}
+public static function fetchRowCount($table)
+{
+        self::DbConnect();
+        $sql="SELECT COUNT(*) as `num` FROM {$table}";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();
+}
+public static function daysOfWeek(){
+    $daysList=array();
+    $daysList[]='Monday';
+    $daysList[]='Tuesday';
+    $daysList[]='Wednesday';
+    $daysList[]='Thursday';
+    $daysList[]='Friday';
+    $daysList[]='Saturday';
+    $daysList[]='Sunday';
+    return $daysList;
+    
+}
+public static function getTableMapping($value,$parentTable){
+    $tableName=$value;
+    if ($value=='disease') {
+         $tableName='cropdiseasemappings'; 
+    }
+    if ($value=='fertilizer') {
+         $tableName='cropfertilizermappings'; 
+    }
+    if ($value=='pest') {
+         $tableName='croppestmappings'; 
+    }
+    if ($value=='herbicide') {
+         $tableName='cropherbicides'; 
+    }
+    if ($value=='variety') {
+         $tableName='cropvarietys'; 
+    }
+    if ($value=='pesticide') {
+         $tableName='pestpesticidemappings'; 
+    }
+    if ($value=='crop' && $parentTable=='trader') {
+         $tableName='tradercropsolds'; 
+    }
+    if ($value=='crop' && $parentTable=='market') {
+         $tableName='marketcrops'; 
+    }
+    
+    return $tableName;
+}
+public static function previousTable($value){
+    $tableName=$value;
+    if ($value=='cropdiseasemappings') {
+         $tableName='crops'; 
+    }
+    if ($value=='cropfertilizermappings') {
+         $tableName='crops'; 
+    }
+    if ($value=='croppestmappings') {
+         $tableName='crops'; 
+    }
+    if ($value=='cropherbicides') {
+         $tableName='crops'; 
+    }
+    if ($value=='cropvarietys') {
+         $tableName='crops'; 
+    }
+    if ($value=='pestpesticidemappings') {
+         $tableName='pests'; 
+    }
+    if ($value=='tradercropsolds') {
+         $tableName='traders'; 
+    }
+    if ($value=='marketcrops') {
+         $tableName='markets'; 
+    }
+    return $tableName;
+}
+
+    public static function FetchCrop($ID) {
+         self::DbConnect();
+        $sql=" select cropID  from farmercrops where farmerID='$ID' ";
+        $result=mysql_query($sql) or die(mysql_error());
+        return $result;
+         mysql_close();   
+        
+    }
+
+    public static function decode($TargetFarmer) {
+       
+        if  ($TargetFarmer=='stateID'){
+            $TargetFarmer='State';
+        }
+        if  ($TargetFarmer=='lgaID'){
+            $TargetFarmer='LGA';
+        }
+        if  ($TargetFarmer=='fcaID'){
+            $TargetFarmer='FCA';
+        }
+        if  ($TargetFarmer=='fugID'){
+            $TargetFarmer='FUG';
+        }
+        return $TargetFarmer;
+    }
+
+    public static function fechtargetName($TargetFarmer, $TargetName) {
+        $targetName=$TargetName;
+        if  ($TargetFarmer=='State'){
+       $stateRow= entity::fetchState('states', $TargetName);
+       $targetName=mysql_result($stateRow,0,2);
+                }
+        if  ($TargetFarmer=='LGA'){
+        $lgaRow=  entity::fetchLGARecord('lga', $TargetName);
+        $targetName=mysql_result($lgaRow,0,2);
+       
+        }
+        if  ($TargetFarmer=='FCA'){
+        $fcaRow=entity::fetchRecord('fca', $TargetName);
+        $targetName=mysql_result($fcaRow,0,2);
+          
+        }
+        if  ($TargetFarmer=='FUG'){
+        $fugRow=entity::fetchRecord('fug', $TargetName);
+        $targetName=mysql_result($fugRow,0,2);
+      
+        }
+        return $targetName;
+    }
+
+
+
+}
+?>

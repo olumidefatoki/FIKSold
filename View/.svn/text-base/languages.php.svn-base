@@ -1,0 +1,104 @@
+<?php
+
+include('../Controller/entity.php');
+//session_start();
+if(isset($_SESSION['tableName']))
+{
+$tableName=$_SESSION['tableName'];
+}
+$result=entity::fetchMenu();
+$row=mysql_num_rows($result);
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><img src="../images/banner.jpg" alt="" width="1000" height="200" /></div>
+
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$row;$i++)
+    {
+        $id=  mysql_result($result, $i, 0);
+        $tableName=  mysql_result($result, $i, 1);
+        $name=mysql_result($result, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?tableName=$tableName" ;?>"> <li> <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+      <table width="399" cellspacing="1">
+        <tr>
+          <td>List &gt;&gt; <?php echo strtoupper($tableName); ?></td>
+        </tr>
+      </table>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="405" cellspacing="1">
+        
+          <tr bgcolor="#96CA1D">
+            <td> Name</td>
+            <td><label for="name"></label>
+            <input type="text" name="name" id="name" /></td>
+          </tr>
+          
+          <tr>
+            <td>Description</td>
+            <td><input type="text" name="description" id="description" /></td>
+          </tr>
+         
+          <tr bgcolor="#96CA1D">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="AddFertilizer" id="AddFertilizer" value="Submit" /></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <table cellspacing="1" id="Add">
+          <tr>
+            <td width="91" bgcolor="#C0E6D1">&nbsp;</td>
+          </tr>
+          <tr>
+            <td><a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a></td>
+          </tr>
+        </table>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  <?php
+  mysql_close();
+  ?>
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

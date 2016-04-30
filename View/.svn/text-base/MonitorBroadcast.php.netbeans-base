@@ -1,0 +1,152 @@
+<?php
+include('../Controller/entity.php');
+if(isset($_GET['ViewRecord']) && $_SESSION['menuName']  && isset($_SESSION['username']))
+{	
+$username=$_SESSION['username'];
+$menuTableName= $_SESSION['menuTableName'];
+$menuName=$_SESSION['menuName'];
+$id=$_GET['ViewRecord'];
+
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+
+}
+else{
+	header('location:index.php');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../script/jquery.min.js"></script>
+<script type="text/javascript">
+function callServer(id){
+   var totalFarmer= getTotalFarmer(id);
+  
+    getloadedFarmer(id);
+}
+ function getTotalFarmer(id){
+    var xmlhttp;
+     var result;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+      
+    document.getElementById("totalLoad").innerHTML=xmlhttp.responseText;
+     result= xmlhttp.responseText;
+    
+  
+    }
+  } 
+xmlhttp.open("GET","../Controller/RequestController.php?broadcastId="+id,true);
+xmlhttp.send();
+
+}
+function getloadedFarmer(id){
+    var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+      
+    document.getElementById("currentLoad").innerHTML=xmlhttp.responseText;
+    
+    }
+  }
+xmlhttp.open("GET","../Controller/RequestController.php?loadFarmer="+id,true);
+xmlhttp.send();
+}
+</script>
+</head>
+
+<body onload="callServer(<?php echo $id;?>)">
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>"> <li> 
+	  <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+	  <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+       <div id="viewHeader">MONITOR BROADCAST</div>
+        <div style="color:black; font-size:larger; font-weight:bold; margin:7px auto; float:left; width:600px; font-size:xx-large;">
+          
+         <div style="100px; float:left;"> LOADING...</div><div id="currentLoad" style="100px; float:left; font-weight:bolder"  ></div><div style="100px; float:left; font-weight:bolder"  >/</div><div id="totalLoad"style="100px; float:left;"></div>
+         
+        </div>
+        <div style="color:black; font-size:larger; font-weight:bold; margin:7px auto; float:left; width:600px;">
+          
+         <div style="100px; float:left;"> Messsage Status...</div>
+         <div id="sentMsg" style="100px; float:left; font-weight:bolder"  ></div><div style="100px; float:left; font-weight:bolder; font-size:xx-large;" >/</div><div id="totalMsg"style="100px; float:left;"></div>
+         
+        </div>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a> </li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

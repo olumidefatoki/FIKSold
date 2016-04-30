@@ -1,0 +1,181 @@
+<?php
+//include('../Controller/entity.php');
+include('../Controller/RequestController.php');
+
+//session_start();
+if (isset($_POST['Search'])) {
+    $displayTitle=true;
+    $username = $_SESSION['username'];
+   
+    $season=clean($_POST['season']);
+    $PackagePractise=clean($_POST['PackagePractise']);
+    $crop=clean($_POST['crop']);
+    $lang=clean($_POST['langID']);
+    $searchRow=entity::fetchPractise($season,$PackagePractise,$crop,$lang);
+    $row=mysql_num_rows($searchRow);
+    if ($row>0) {
+        $searchResult=mysql_result($searchRow,0,0);
+       
+    }
+    
+    //fecth a list of all the menus
+    $menuList = entity::fetchMenu();
+    $menuRow = mysql_num_rows($menuList);
+} elseif (isset($_SESSION['menuName']) or isset($_GET['actionSuccessfull']) && isset($_SESSION['username'])) {
+    $username=$_SESSION['username'];
+    $displayTitle=false;
+    //fecth a list of all the menus
+    $menuList = entity::fetchMenu();
+    $menuRow = mysql_num_rows($menuList);
+
+    //to make pagination
+} else {
+    header('location:../index.php');
+}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Fadama Information Knowledge &amp; Services</title>
+       <script type="text/javascript" src="../script/customscripts.js"></script>
+        <link href="../css/main.css" rel="stylesheet" type="text/css" />
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <div id="header"><?php include 'sliding.php'; ?></div>
+            <div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+            <div id="content">
+                <div id="navigation">
+                    <div id="navigationHeader"></div>
+                    <ul>
+<?php
+for ($i = 0; $i < $menuRow; $i++) {
+    $id = mysql_result($menuList, $i, 0);
+    $tableName = mysql_result($menuList, $i, 1);
+    $name = mysql_result($menuList, $i, 2);
+    ?>
+                            <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name"; ?>">
+                                <li>
+                                    <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+                            <?php echo $name; ?>
+                                </li>
+                            </a>
+    <?php
+}
+?></ul>
+                </div>
+                <div id="post">
+                  <div id="subMenu">
+<p>&nbsp;</p>
+</table>
+              </div>
+                    <div id="view">
+                        <div style="color:#044407; font-size:28px; margin-top:2px ; margin-bottom:10px;">View Package of Practise 
+
+                        </div>
+                        <div id="SearchHolder">
+                            <form id="form1" name="form1" method="post" action="CropLifeCycle.php">
+                                <table width="100%" cellpadding="5">
+                                    <tr>
+                                        <td width="41%" height="37">Crop Lifecycle</td>
+                                        <td width="59%"><select name="season" id="season" onchange="composeEntities('season','PackagePractise','seasonType');" style="width:150px;" >
+                                          <option >--Select a Lifecycle--</option>
+                                          <option value="pre_season">Pre Season</option>
+                                          <option value="post_season">Post Season</option>
+                                          <option value="in_season">In Season</option>
+                                      </select></td>
+                                        
+                                        </tr>
+                                    <tr>
+                                            <td>Crop Name</td>
+                                            <td><select name="crop" id="crop"  style="width:150px;">
+                                            <option >--Select a Crop--</option>
+                                              <?php  
+			$cropList=entity::fetchEntityList('crops');
+			$cropNum=mysql_num_rows($cropList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $fertid=  mysql_result($cropList, $index, 'ID');
+        		$fertName=  mysql_result($cropList, $index, 1);
+            
+			?>
+                                              <option value="<?php echo $fertid; ?>"> <?php echo $fertName; ?></option>
+                                              <?php  
+			}
+			?>
+                                          </select></td>
+
+                                            </tr>
+                                    <tr>
+                                              <td>Package of Practise</td><td>
+                                                    <select name="PackagePractise" id="PackagePractise" disabled="disabled"  style="width:150px;">
+                                                        <option >--Select a PackagePractise--</option>
+
+                                                    </select>
+                                                </td>
+                                    </tr>
+                                                <tr>
+                                                    <td> Language</td>
+                                                    <td><select name="langID" id="langID"  style="width:150px;">
+                                                    <option >--Select a Langue--</option>
+                                                      <?php  
+			$cropList=entity::fetchEntityList('languages');
+			$cropNum=mysql_num_rows($cropList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $fertid=  mysql_result($cropList, $index, 'ID');
+        		$fertName=  mysql_result($cropList, $index, 1);
+            
+			?>
+                                                    <option value="<?php echo $fertid; ?>"> <?php echo ucfirst($fertName); ?></option>
+                                                      <?php  
+			}
+			?>
+                                                  </select></td></tr>
+                                                    <tr><td colspan="2" align="center">  <input type="submit" value="Search" name="Search" id="Search" /></td>
+                                                    </tr>
+                                                        </table>
+                          </form>
+                                                        </div>
+                                                       <?php
+                                           if ($displayTitle==true) {
+                                                           
+
+                                                       ?>
+                                                        <table width="100%" cellpadding="3" class="recordTable" >
+														<tr bgcolor="#96C000">
+														  <td width="42%">PACKAGE NAME</td>
+														  <td width="58%">PACKAGE DETAILS</td></tr>
+                                                          <?php if ($row>0){
+														  ?>
+                                                        <tr  id="entityRowEven"><td><?php echo $PackagePractise; ?></td><td><?php
+														$list=splitContent($searchResult);
+             											 foreach ($list as $value) {
+               											  echo  htmlspecialchars_decode($value).'<br>';
+															 }
+														 ?></td></tr>
+                                                          <?php
+														  }
+														  else{
+														  ?>
+                                                        <tr bgcolor="#96CA1D">
+                                                         <td colspan="7" align="center">No Record Found</td>
+                                                          </tr>
+                                                           <?php
+														  }
+														  ?>
+                                                           </table>
+                                                <?php
+                                                  }
+                                                 ?>
+                                                        </div>
+                                                       
+                                                        </div>
+
+                                                        </div>
+                                                        <div id="footer">
+                                                            <p>Copyright &copy; 2012 cellulant life is mobile</p>
+                                                        </div>
+                                                        </div>
+                                                        </body>
+                                                        </html>

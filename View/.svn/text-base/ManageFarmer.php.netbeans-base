@@ -1,0 +1,317 @@
+<?php
+
+include('../Controller/entity.php');
+if(isset($_GET['action']) && isset($_GET['id'])&& isset($_SESSION['username']))
+{
+	
+$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$recID=$_GET['id'];
+$menuName=$_SESSION['menuName'];
+$entityName=$_SESSION['menuTableName'];
+$result= entity::fetchRecord($entityName,$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$firstName=  mysql_result($result, 0, 7);
+$lastName=  mysql_result($result, 0, 8);
+$age=  mysql_result($result, 0, 9);
+$farmSize=  mysql_result($result, 0, 10);
+$address=mysql_result($result, 0, 11);
+$phoneNo=mysql_result($result, 0, 12);
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+}
+
+else if(isset($_GET['action']) && isset($_SESSION['username']))
+{
+$username=$_SESSION['username'];
+$menuName=$_SESSION['menuName'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['menuTableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+
+}
+else{
+	header('location:../index.php');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Fadama Information Knowledge &amp; Services</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../script/jquery.min.js"></script>
+ <script type="text/javascript" src="../script/customscripts.js"></script>
+
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><?php include 'sliding.php'; ?></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?menuTableName=$tableName&menuName=$name" ;?>">
+          <li> 
+	  <img src="../images/list_bullet.gif" /><img src="../images/list_bullet.gif" />
+	  <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+       <div id="addRecord">
+        <?php  if($action=='add'){
+		echo 'Add New '.$menuName;
+		}
+		 else if($action=='update'){
+			  echo 'Update  '.$menuName.'  '.$firstName." ".$lastName;
+			  } ?>
+        </div>
+      <div style="color:#FFF;">
+      Please fill all fields
+      </div>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="100%" cellpadding="3" cellspacing="1" class="recordTable">
+        
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="242">State </td>
+            <td width="405"><label for="fName"></label>
+              <select name="state" id="state" onchange ="composeEntities('state','lga','stateId');" style="width:300px;">
+                <option >---------------------------Select a State---------------------------</option>
+                <?php
+$state = entity::fetchEntityList('states');
+$stateRows = mysql_num_rows($state);
+for ($i = 0; $i < $stateRows; $i++) {
+    $stateID = mysql_result($state, $i, 'stateID');
+    $stateName = mysql_result($state, $i, 'stateName');
+    ?>
+                <option value="<?php echo $stateID; ?>"><?php echo $stateName; ?></option>
+                <?php
+                                                }
+                                                ?>
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="242">Lga</td>
+            <td width="405"><label for="fName"></label>
+              <select name="lga" id="lga" disabled="disabled" onchange ="composeEntities('lga','fca','farmerlgaid');"  style="width:300px;">
+                <option >----------------------------All Lga----------------------------</option>
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="242">Farmer Community Association (FCA)</td>
+            <td width="405"><label for="fName"></label>
+              <select name="fca" id="fca" disabled="disabled" onchange="composeEntities('fca','fug','fcaId');" style="width:300px;">
+                <option >----------------------------All FCA----------------------------</option>
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="242">Farmer User Group (FUG)</td>
+            <td width="405"><label for="fName"></label>
+              <select name="fug" id="fug" disabled="disabled" style="width:300px;">
+                <option >----------------------------All FUG----------------------------</option>
+              </select></td>
+          </tr>
+          <tr id="entityRowOdd">
+          <td>Market</td>
+            <td><select name="market" id="market" onchange="" style="width:300px;">
+             <option >----------------------------Select a Market----------------------------</option>
+              <?php
+			  
+			  $state=entity::fetchEntityList('Markets');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $ID=mysql_result($state,$i,'ID');
+				  $groupName=mysql_result($state,$i,'Name');
+			  ?>
+              <option value="<?php echo $ID; ?>"><?php echo $groupName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select></td>
+            </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="242"> First Name</td>
+            <td width="405"><label for="fName"></label>
+            <input name="fName" type="text" id="fName"  value="<?php if($action=='update'){echo $firstName;} ?>" size="45"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          <tr id="entityRowEven">
+            <td>Last Name</td>
+            <td><input name="lName" type="text" id="lName" value="<?php if($action=='update'){echo $lastName;} ?>" size="45" $description/></td>
+          </tr>
+         <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td> Marital status</td>
+            <td><label for="fName"></label>
+              <select name="status" id="status" style="width:150px;">
+                <option value="Married">Married</option>
+                <option value="Single">Single</option>
+              </select></td>
+          </tr>
+          
+          <tr id="entityRowEven">
+            <td>Sex</td>
+            <td><label for="gender"></label>
+              <select name="gender" id="gender" style="width:150px;">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td> Phone No</td>
+            <td><label for="fName"></label>
+            <input name="phoneNo" type="text" id="phoneNo"  value="<?php if($action=='update'){echo $phoneNo;} ?>" size="45"/></td>
+          </tr><tr id="entityRowEven">
+            <td>Address</td>
+            <td><textarea name="address" cols="35" rows="3" id="address" ><?php if($action=='update'){echo $address;} ?>
+            </textarea></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Farm Size</td>
+            <td>            <span >
+              <input name="size" type="text" id="size"  value="<?php if($action=='update'){echo $farmSize;} ?>" size="45"/>
+            </span></td>
+          </tr>
+          
+          
+         <tr bgcolor="#96CA1D" id="entityRowEven">
+            <td> Crop </td>
+            <td><label for="fName"></label>
+              <textarea name="crop" cols="35" rows="3" id="crop"><?php if($action=='update'){echo $phoneNo;} ?>
+              </textarea></td>
+          </tr><tr id="entityRowOdd">
+            <td>Type Of Phone</td>
+            <td><input name="phoneType" type="text" id="phoneType"  value="<?php if($action=='update'){echo $phoneNo;} ?>" size="45"/></td>
+          </tr>
+          <tr id="entityRowEven">
+            
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Language </td>
+            <td><select name="language" id="language" onchange="" style="width:150px;">
+              <?php
+			  
+			  $state=entity::fetchEntityList('languages');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $ID=mysql_result($state,$i,'ID');
+				  $langName=mysql_result($state,$i,'Name');
+			  ?>
+              <option value="<?php echo $ID; ?>"><?php echo $langName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Preferred Crop 1 </td>
+            <td><select name="crop1" id="crop1" onchange="" style="width:150px;">
+              <?php
+			  
+			  $state=entity::fetchEntityList('crops');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $ID=mysql_result($state,$i,'ID');
+				  $langName=mysql_result($state,$i,'Name');
+			  ?>
+              <option value="<?php echo $ID; ?>"><?php echo $langName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Preferred Crop 2</td>
+            <td><select name="crop2" id="crop2" onchange="" style="width:150px;">
+              <?php
+			  
+			  $state=entity::fetchEntityList('crops');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $ID=mysql_result($state,$i,'ID');
+				  $langName=mysql_result($state,$i,'Name');
+			  ?>
+              <option value="<?php echo $ID; ?>"><?php echo $langName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select></td>
+          </tr>
+          <tr id="entityRowOdd">
+            <td>Preferred Crop 3</td>
+            <td><select name="crop3" id="crop3" onchange="" style="width:150px;">
+              <?php
+			  
+			  $state=entity::fetchEntityList('crops');
+			  $stateRows=mysql_num_rows($state);
+			  for($i=0;$i<$stateRows;$i++)
+			  {
+				  $ID=mysql_result($state,$i,'ID');
+				  $langName=mysql_result($state,$i,'Name');
+			  ?>
+              <option value="<?php echo $ID; ?>"><?php echo $langName; ?></option>
+              <?php
+			  }
+			  ?>
+            </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a> </li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  <?php
+  mysql_close();
+  ?>
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>

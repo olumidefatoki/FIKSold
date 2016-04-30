@@ -1,0 +1,133 @@
+<?php
+
+include('../Controller/entity.php');
+//session_start();
+if(isset($_GET['action']) && isset($_GET['username']))
+{
+$action=trim($_GET['action']);
+$entityName=$_SESSION['tableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+}
+if( isset($_GET['id']) )
+{
+$recID=$_GET['id'];
+
+$result= entity::fetchRecord($entityName,$recID);
+$row=mysql_num_rows($result);
+$recID=  mysql_result($result, 0, 0);
+$fetilizername=  mysql_result($result, 0, 1);
+$description=  mysql_result($result, 0, 2);
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><img src="../images/banner.jpg" alt="" width="1000" height="200" /></div>
+
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?tableName=$name" ;?>"> <li> <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+      <table width="399" cellspacing="1">
+        <tr>
+          <td>List &gt;&gt; <?php echo strtoupper($entityName); ?></td>
+        </tr>
+      </table>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="405" cellspacing="1">
+        
+          <tr bgcolor="#96CA1D">
+            <td width="124"> Name</td>
+            <td width="272"><label for="name"></label>
+            <input name="name" type="text" id="name"  value="<?php if($action=='update'){echo $fetilizername;} ?>" size="40"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          
+          <tr>
+            <td>Market Address</td>
+            <td><input name="description" type="text" id="description" value="<?php if($action=='update'){echo $description;} ?>" size="40" $description/></td>
+          </tr>
+         <tr bgcolor="#96CA1D">
+            <td width="124"> State</td>
+            <td width="272"><label for="name"></label>
+            <input name="name" type="text" id="name"  value="<?php if($action=='update'){echo $fetilizername;} ?>" size="40"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          <tr bgcolor="#96CA1D">
+            <td width="124"> State</td>
+            <td width="272"><label for="name"></label>
+            <input name="name" type="text" id="name"  value="<?php if($action=='update'){echo $fetilizername;} ?>" size="40"/>
+            <input type="hidden" name="id" id="id" value="<?php if($action=='update'){echo $recID;} ?>" /></td>
+          </tr>
+          <tr>
+            <td>Market Day</td>
+            <td><label for="select"></label>
+              <select name="select" id="select">
+              </select></td>
+          </tr>
+          <tr bgcolor="#96CA1D">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <table cellspacing="1" id="Add">
+          <tr>
+            <td width="91" bgcolor="#C0E6D1">&nbsp;</td>
+          </tr>
+          <tr>
+            <td><a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a></td>
+          </tr>
+        </table>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+  
+  <?php
+  mysql_close();
+  ?>
+  <div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+</div></div>
+</body>
+</html>

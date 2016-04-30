@@ -1,0 +1,132 @@
+<?php
+include('../Controller/entity.php');
+//session_start();
+if(isset($_GET['action']) && isset($_SESSION['username']))
+{
+	$username=$_SESSION['username'];
+$action=trim($_GET['action']);
+$entityName=$_SESSION['tableName'];
+$menuList=entity::fetchMenu();
+$menuRow=mysql_num_rows($menuList);
+$marketID=$_SESSION['recID'];
+$cropList=entity::fetchRecord('market',$marketID);
+$marketName=mysql_result($cropList,0,'Name');
+}
+
+?>
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<link href="../css/main.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<div id="wrapper">
+  <div id="header"><img src="../images/banner.jpg" alt="" width="1000" height="200" /></div>
+<div id="loginDetail">Welcome  <?php echo strtoupper($username); ?> | <a href="../index.php">logout</a>&nbsp;&nbsp;&nbsp;</div>
+<div id="content">
+  <div id="navigation">
+    <ul>
+    <?php
+    
+    for($i=0;$i<$menuRow;$i++)
+    {
+        $id=  mysql_result($menuList, $i, 0);
+        $tableName=  mysql_result($menuList, $i, 1);
+        $name=mysql_result($menuList, $i, 2);
+        
+    
+    ?>
+    
+    
+      <a href="<?php echo"../Controller/RequestController.php?tableName=$name" ;?>"> <li> <?php   echo $name;  ?></li></a>
+    
+    <?php
+    }
+    ?>
+    </ul>
+  </div>
+    <div id="post">
+      <div id="view">
+      <table width="100%" cellspacing="1">
+        <tr id="entityHeader">
+          <td width="459"> Add Market Crop </td>
+        </tr>
+      </table>
+      <?php
+      if($action=='success')
+{
+	?>
+       <table width="100%" cellspacing="1" id="entitysubHeader">
+        <tr>
+          <td width="459">Record was Successfully Added</td>
+        </tr>
+      </table>
+      <?php
+}
+?>
+      <form id="form1" name="form1" method="post" action="../Controller/RequestController.php">
+<table width="469" cellspacing="1">
+        <tr bgcolor="#96CA1D" id="entityRowOdd">
+            <td width="90"> Market Name</td>
+            <td width="351"><?php echo $marketName; ?> <input name="marketID" type="hidden" id="marketID" value="<?php echo $marketID; ?>" /></td>
+          </tr>
+          <tr bgcolor="#96CA1D" id="entityRowEven">
+            <td width="90"> Crop Name</td>
+            <td width="351"><label for="variety">
+              <select name="cropID" id="cropID">
+                <?php  
+			$pestList=entity::fetchEntity('crops');
+			$cropNum=mysql_num_rows($pestList);
+			for ($index = 0; $index < $cropNum; $index++) {
+                $marketID=  mysql_result($pestList, $index, 'ID');
+        		$marketName=  mysql_result($pestList, $index, 1);
+            
+			?>
+                <option value="<?php echo $marketID; ?>"> <?php echo $marketName; ?></option>
+                <?php  
+			}
+			?>
+              </select>
+            </label></td>
+          </tr>
+          
+          <tr id="entityRowOdd">
+            <td>Price</td>
+            <td><input name="price" type="text" id="price" size="20" /></td>
+          </tr>
+          
+          <tr bgcolor="#96CA1D">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="<?php echo $action; ?>" id="<?php echo $action; ?>" value="<?php echo $action; ?>"  style="width:60px; text-align:center;"/></td>
+          </tr>
+        </table>
+
+</form>
+      </div>
+      <div id="subMenu" >
+        <div id="subMenu2">
+          <ul>
+            <li> <a href="<?php echo"../Controller/RequestController.php?add" ;?> ">Add</a></li>
+          </ul>
+          </table>
+        </div>
+      </div>
+      <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  </div>
+  
+  </div>
+<div id="footer">
+    <p>Copyright &copy; 2012 cellulant life is mobile</p>
+  </div>
+</div>
+</body>
+</html>
